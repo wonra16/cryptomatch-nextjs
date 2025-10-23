@@ -43,6 +43,93 @@ export default function PortfolioScreen({ data, onBack, onAddWallet }: Portfolio
   const allTokens = analysis.all_tokens || []
   const chains = Object.entries(analysis.chains || {})
   const totalMemeCoins = analysis.total_meme_coins || 0
+  const walletsAnalyzed = analysis.wallets_analyzed || []
+
+  // ✅ EMPTY STATE - No wallets yet!
+  if (walletsAnalyzed.length === 0 || totalValue === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white p-4">
+        <div className="max-w-4xl mx-auto">
+          
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-2 text-white/80 hover:text-white transition-all hover:scale-105"
+            >
+              <span className="text-2xl">←</span>
+              <span className="font-bold">Back</span>
+            </button>
+            <h1 className="text-2xl md:text-3xl font-black">Portfolio Analysis 💰</h1>
+            <div className="w-20"></div>
+          </div>
+
+          {/* Welcome Card */}
+          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-12 border border-white/20 text-center mb-6">
+            <div className="text-8xl mb-6">💼</div>
+            <h2 className="text-4xl font-black mb-4">Welcome to Portfolio!</h2>
+            <p className="text-xl text-white/80 mb-8">
+              Add your wallet addresses to analyze your crypto holdings
+            </p>
+            
+            {/* Add Wallet Button - BIG! */}
+            <button
+              onClick={() => setShowWalletInput(true)}
+              className="bg-gradient-to-r from-blue-500 to-cyan-500 px-12 py-5 rounded-2xl font-black text-2xl hover:scale-105 transition shadow-xl"
+            >
+              + Add Wallet Address
+            </button>
+          </div>
+
+          {/* Manual Wallet Input */}
+          {showWalletInput && (
+            <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl rounded-2xl p-6 border border-blue-400/30">
+              <h3 className="text-xl font-bold mb-3">Add Wallet Address 🔗</h3>
+              <p className="text-white/70 text-sm mb-4">
+                Enter your Ethereum wallet address or ENS name
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={manualWallet}
+                  onChange={(e) => setManualWallet(e.target.value)}
+                  placeholder="0x... or vitalik.eth"
+                  className="flex-1 bg-black/30 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-blue-400 focus:outline-none"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddWallet()}
+                />
+                <button
+                  onClick={handleAddWallet}
+                  disabled={!manualWallet.trim()}
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 px-8 py-3 rounded-xl font-bold hover:scale-105 transition disabled:opacity-50 disabled:hover:scale-100"
+                >
+                  Analyze
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Info Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 text-center">
+              <div className="text-4xl mb-2">🔗</div>
+              <h3 className="font-bold mb-2">Multiple Wallets</h3>
+              <p className="text-sm text-white/70">Add multiple wallet addresses to see combined portfolio</p>
+            </div>
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 text-center">
+              <div className="text-4xl mb-2">⛓️</div>
+              <h3 className="font-bold mb-2">Multi-Chain</h3>
+              <p className="text-sm text-white/70">Analyze across 20+ blockchain networks</p>
+            </div>
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 text-center">
+              <div className="text-4xl mb-2">🐕</div>
+              <h3 className="font-bold mb-2">Meme Detector</h3>
+              <p className="text-sm text-white/70">Automatically detects and highlights your meme coins</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // Filter meme coins
   const MEME_KEYWORDS = [

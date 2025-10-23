@@ -24,7 +24,7 @@ export async function GET() {
       subtitle: "Find your crypto soulmate",
       heroImageUrl: `${appUrl}/images/preview-og.png`,
       tagline: "Find your crypto match",
-      ogTitle: "CryptoMatch - Find Your Crypto Soulmate",
+      ogTitle: "CryptoMatch - Crypto Match",
       ogDescription: "AI-powered crypto personality matching! Find your perfect match in the crypto world.",
       ogImageUrl: `${appUrl}/images/preview-og.png`,
       primaryCategory: "entertainment",

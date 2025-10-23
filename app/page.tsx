@@ -195,76 +195,24 @@ export default function Page() {
       return
     }
 
-    setLoading(true)
-    setScreen('loading')
-
-    // Fetch wallet via internal API - NO MANUAL INPUT!
-    try {
-      console.log('💰 Portfolio - Fetching wallet for FID:', context.user.fid)
-      
-      const walletRes = await fetch('/api/get-wallet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fid: context.user.fid })
-      })
-
-      if (!walletRes.ok) {
-        throw new Error('Failed to fetch wallet')
+    // ✅ DON'T analyze immediately! Just show portfolio screen!
+    // User will add wallet manually using "+ Wallet" button
+    
+    console.log('💰 Opening portfolio screen for FID:', context.user.fid)
+    
+    // Set empty portfolio data to show welcome screen
+    setPortfolioData({
+      success: true,
+      analysis: {
+        total_value_usd: '0',
+        total_meme_coins: 0,
+        chains: {},
+        all_tokens: [],
+        wallets_analyzed: []
       }
-
-      const walletData = await walletRes.json()
-      
-      console.log('📦 Wallet API response:', JSON.stringify(walletData, null, 2))
-
-      // Extract wallets safely
-      let allWallets: string[] = []
-      
-      if (walletData.success) {
-        if (walletData.wallets && walletData.wallets.eth && Array.isArray(walletData.wallets.eth)) {
-          // New multi-wallet format
-          allWallets = walletData.wallets.eth.filter((w: string) => w && w.length > 0)
-        } else if (walletData.wallet) {
-          // Old single wallet format
-          allWallets = [walletData.wallet]
-        }
-      }
-      
-      console.log('💰 Extracted wallets:', allWallets)
-      
-      if (allWallets.length === 0) {
-        setError('No wallet found! Connect your Ethereum wallet on Farcaster:\n\nSettings → Verified Addresses → Connect Wallet')
-        setScreen('error')
-        setLoading(false)
-        return
-      }
-
-      console.log('💰 Total wallets to analyze:', allWallets.length)
-      console.log('💰 Analyzing MULTI-WALLET portfolio...')
-      
-      const res = await fetch('/api/portfolio/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          addresses: allWallets,  // ← Send ALL wallets!
-          fid: context.user.fid
-        })
-      })
-
-      const data = await res.json()
-      
-      if (data.success) {
-        setPortfolioData(data)
-        setScreen('portfolio')
-      } else {
-        throw new Error(data.error || 'Portfolio analysis failed')
-      }
-    } catch (err: any) {
-      console.error('❌ Portfolio error:', err)
-      setError(err.message)
-      setScreen('error')
-    } finally {
-      setLoading(false)
-    }
+    })
+    
+    setScreen('portfolio')
   }
 
   const handleAddWallet = async (newWallet: string) => {
