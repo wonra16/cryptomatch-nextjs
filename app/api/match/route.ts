@@ -215,11 +215,15 @@ export async function POST(request: NextRequest) {
     const body: MatchRequest = await request.json()
     const { fid, username, bio, walletAddress } = body
 
+    console.log('========================================')
     console.log('🔍 Match API called for FID:', fid)
+    console.log('👤 Username:', username)
+    console.log('💰 Wallet Address:', walletAddress || 'NOT PROVIDED')
     console.log('📊 API Status:', {
       neynar: isNeynarConfigured(),
       alchemy: isAlchemyConfigured()
     })
+    console.log('========================================')
 
     // Warning if APIs not configured (but continue anyway)
     if (!isNeynarConfigured()) {
