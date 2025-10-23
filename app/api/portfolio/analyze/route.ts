@@ -17,6 +17,39 @@ interface AnalyzeRequest {
   address: string
 }
 
+// Alchemy API kullanarak gerçek token balance'ları al
+async function getRealTokenBalances(address: string) {
+  try {
+    // Alchemy API key varsa gerçek data çek
+    const alchemyKey = process.env.ALCHEMY_API_KEY
+    
+    if (!alchemyKey) {
+      console.log('No Alchemy API key, using mock data')
+      return null
+    }
+
+    const response = await fetch(
+      `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}/getTokenBalances`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'alchemy_getTokenBalances',
+          params: [address],
+          id: 1,
+        }),
+      }
+    )
+
+    const data = await response.json()
+    return data.result
+  } catch (error) {
+    console.error('Failed to fetch real balances:', error)
+    return null
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body: AnalyzeRequest = await request.json()
@@ -26,19 +59,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Address is required' }, { status: 400 })
     }
 
-    // Simulate portfolio analysis (in production, use real blockchain APIs)
+    // Simulate analysis delay
     await new Promise(resolve => setTimeout(resolve, 2000))
 
-    // Generate mock data
-    const totalValue = (Math.random() * 10000 + 100).toFixed(2)
-    const change24h = (Math.random() * 40 - 20).toFixed(2)
-    const roastIndex = Math.abs(parseInt(address.slice(-2), 16) % funnyRoasts.length)
+    // Try to get real balances
+    const realBalances = await getRealTokenBalances(address)
 
-    // In production, you would:
-    // 1. Fetch token balances from blockchain (Alchemy, Infura, Moralis)
-    // 2. Get current prices from CoinGecko/CMC
-    // 3. Calculate portfolio value
-    // 4. Use OpenAI to generate personalized roast based on holdings
+    // Generate roast
+    const roastIndex = Math.abs(parseInt(address.slice(-2), 16) % funnyRoasts.length)
+    
+    // If we have real balances, calculate actual value
+    let totalValue = '0.00'
+    let tokens = []
+    
+    if (realBalances && realBalances.tokenBalances) {
+      // Calculate real portfolio value
+      // Note: Bu gerçek fiyat verileri gerektirir (CoinGecko API gibi)
+      totalValue = 'Calculating...'
+      tokens = realBalances.tokenBalances.slice(0, 5).map((token: any) => ({
+        symbol: 'TOKEN',
+        balance: parseInt(token.tokenBalance || '0', 16).toString(),
+        value: 'N/A'
+      }))
+    } else {
+      // Mock data (şu anki)
+      totalValue = (Math.random() * 10000 + 100).toFixed(2)
+      tokens = [
+        { symbol: 'ETH', balance: '0.15', value: '$300' },
+        { symbol: 'USDC', balance: '500', value: '$500' },
+      ]
+    }
+
+    const change24h = (Math.random() * 40 - 20).toFixed(2)
     
     return NextResponse.json({
       success: true,
@@ -46,11 +98,10 @@ export async function POST(request: NextRequest) {
       total_value: totalValue,
       change_24h: parseFloat(change24h),
       ai_roast: funnyRoasts[roastIndex],
-      tokens: [
-        { symbol: 'ETH', balance: '1.23', value: '$2,450' },
-        { symbol: 'USDC', balance: '500', value: '$500' },
-      ],
-      analyzed_at: new Date().toISOString()
+      tokens,
+      analyzed_at: new Date().toISOString(),
+      using_real_data: !!realBalances,
+      note: !realBalances ? 'Mock data - Add ALCHEMY_API_KEY for real balances' : undefined
     })
 
   } catch (error) {
