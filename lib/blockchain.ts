@@ -387,7 +387,7 @@ export async function getFarcasterWallets(fid: number): Promise<string[]> {
       wallets.push(data.result.user.custody_address)
     }
 
-    return [...new Set(wallets)] // Remove duplicates
+    return Array.from(new Set(wallets)) // Remove duplicates
   } catch (error) {
     console.error('Failed to fetch Farcaster wallets:', error)
     return []
