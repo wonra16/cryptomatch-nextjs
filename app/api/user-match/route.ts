@@ -70,8 +70,8 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
   // Strategy: Find users who follow similar people
   const potentialMatches: UserMatchResult[] = []
   
-  // Get a sample of users from following list - INCREASED TO 150!
-  const sampleFollowing = userFollowing.slice(0, 150) // ← 100 → 150!
+  // Get a sample of users from following list - INCREASED TO 200!
+  const sampleFollowing = userFollowing.slice(0, 200) // ← 150 → 200!
   console.log(`🎯 Analyzing ${sampleFollowing.length} users from following list`)
   
   for (const followedFid of sampleFollowing) {
@@ -83,27 +83,23 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
       const followedCasts = await getUserCasts(followedFid, 25)
       const followedContentProfile = analyzeContent(followedCasts.map((c: any) => c.text || ''))
       
-      // Get their following for social similarity
-      const followedFollowing = await getUserFollowing(followedFid, 100)
-      
       // Calculate similarity
-      const contentSimilarity = calculateContentSimilarity(userContentProfile, followedContentProfile)
       const commonFollows = findCommonFollowing(userFollowing, followedFollowing)
+      
+      // ✅ SIMPLE LOGIC: Just common following count!
+      const compatibilityScore = commonFollows.length * 5  // Each common follow = 5 points!
+      
+      const contentSimilarity = calculateContentSimilarity(userContentProfile, followedContentProfile)
       const socialScore = calculateSocialSimilarity(
         commonFollows.length,
         userFollowing.length,
         followedFollowing.length
       )
       
-      // Combined score
-      const compatibilityScore = Math.round(
-        (contentSimilarity * 0.6) + (socialScore * 0.4)
-      )
+      console.log(`🔢 FID ${followedFid} (@${followedProfile.username}): common=${commonFollows.length}, score=${compatibilityScore}`)
       
-      console.log(`🔢 FID ${followedFid} (@${followedProfile.username}): score=${compatibilityScore}, content=${contentSimilarity}, social=${socialScore}`)
-      
-      // Only add if score > 5 (ULTRA ULTRA LOW threshold!)
-      if (compatibilityScore > 5) {
+      // ✅ Match if at least 1 common follow! (ULTRA LOW!)
+      if (commonFollows.length >= 1) {
         const commonInterests = userContentProfile.topicsDetected.filter((t: string) =>
           followedContentProfile.topicsDetected.includes(t)
         )
@@ -129,11 +125,11 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
           portfolio_similarity: 0
         })
         
-        console.log(`✅ Match found! @${followedProfile.username} - Score: ${compatibilityScore}`)
+        console.log(`✅ Match found! @${followedProfile.username} - Common: ${commonFollows.length}`)
       }
       
-      // Limit API calls - stop after finding 10 good matches (increased from 5)
-      if (potentialMatches.length >= 10) break
+      // Limit API calls - stop after finding 20 good matches!
+      if (potentialMatches.length >= 20) break
       
     } catch (error) {
       console.error(`Error analyzing FID ${followedFid}:`, error)

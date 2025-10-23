@@ -281,18 +281,18 @@ export async function analyzeWallet(address: string): Promise<WalletAnalysis> {
       const nativePrice = prices[networkInfo.coingecko] || 0
       const nativeValue = parseFloat(nativeBalance) * nativePrice
 
-      // Skip chains with 0 balance
-      if (parseFloat(nativeBalance) < 0.0001) {
-        console.log(`⏭️ ${networkInfo.name}: 0 balance, skipping`)
-        return null
-      }
-
       // Get ERC20 tokens - ALL OF THEM!
       const tokenBalances = await getTokenBalances(address, network) || []
       
-      console.log(`📊 ${networkInfo.name}: Processing ${tokenBalances.length} tokens...`)
+      console.log(`📊 ${networkInfo.name}: Native: ${nativeBalance}, Tokens: ${tokenBalances.length}`)
       
-      // Process ALL tokens (no limit!) - Rabby/OKX style!
+      // ✅ Skip ONLY if BOTH native AND tokens are 0!
+      if (parseFloat(nativeBalance) < 0.0001 && tokenBalances.length === 0) {
+        console.log(`⏭️ ${networkInfo.name}: No assets, skipping`)
+        return null
+      }
+      
+      // Process tokens (limit to first 50 to avoid rate limiting!)
       const tokens: TokenBalance[] = []
       let memeCoinsFound = 0
 
@@ -303,38 +303,50 @@ export async function analyzeWallet(address: string): Promise<WalletAnalysis> {
         'BASED', 'HIGHER', 'NORMIE', 'NEIRO', 'POPCAT', 'MEW', 'MYRO'
       ]
 
-      for (const token of tokenBalances) { // ← NO SLICE! Process ALL!
-        if (token.tokenBalance === '0x0') continue
+      // ✅ Process first 50 tokens to avoid rate limits!
+      const tokensToProcess = tokenBalances.slice(0, 50)
+      console.log(`📊 ${networkInfo.name}: Processing ${tokensToProcess.length}/${tokenBalances.length} tokens...`)
 
-        // Get metadata
-        const metadata = await getTokenMetadata(token.contractAddress, network)
-        if (!metadata) continue
+      for (const token of tokensToProcess) {
+        try {
+          if (token.tokenBalance === '0x0') continue
 
-        const balance = BigInt(token.tokenBalance)
-        const decimals = metadata.decimals || 18
-        const balanceFormatted = Number(balance) / (10 ** decimals)
+          // Get metadata
+          const metadata = await getTokenMetadata(token.contractAddress, network)
+          if (!metadata || !metadata.symbol) {
+            console.log(`⚠️ No metadata for ${token.contractAddress}, skipping`)
+            continue  // Skip this token if metadata fails
+          }
 
-        if (balanceFormatted < 0.0001) continue // Skip dust
+          const balance = BigInt(token.tokenBalance)
+          const decimals = metadata.decimals || 18
+          const balanceFormatted = Number(balance) / (10 ** decimals)
 
-        // Detect meme coins!
-        const symbol = (metadata.symbol || '').toUpperCase()
-        const isMeme = MEME_KEYWORDS.some(keyword => symbol.includes(keyword))
-        
-        if (isMeme) {
-          memeCoinsFound++
-          console.log(`🐕 MEME COIN FOUND: ${symbol}!`)
+          if (balanceFormatted < 0.0001) continue // Skip dust
+
+          // Detect meme coins!
+          const symbol = (metadata.symbol || '').toUpperCase()
+          const isMeme = MEME_KEYWORDS.some(keyword => symbol.includes(keyword))
+          
+          if (isMeme) {
+            memeCoinsFound++
+            console.log(`🐕 MEME COIN FOUND: ${symbol}!`)
+          }
+
+          tokens.push({
+            symbol: metadata.symbol || '???',
+            name: metadata.name || 'Unknown',
+            balance: balanceFormatted.toFixed(4),
+            decimals,
+            value_usd: '0',
+            contract: token.contractAddress,
+            chain: networkInfo.name,
+            logo: metadata.logo
+          })
+        } catch (tokenError) {
+          console.error(`❌ Error processing token ${token.contractAddress}:`, tokenError)
+          continue  // Skip this token and continue with others
         }
-
-        tokens.push({
-          symbol: metadata.symbol || '???',
-          name: metadata.name || 'Unknown',
-          balance: balanceFormatted.toFixed(4),
-          decimals,
-          value_usd: '0', // Would need detailed token prices
-          contract: token.contractAddress,
-          chain: networkInfo.name,
-          logo: metadata.logo
-        })
       }
 
       console.log(`✅ ${networkInfo.name}: ${nativeBalance} ${networkInfo.symbol} ($${nativeValue.toFixed(2)}) + ${tokens.length} tokens (${memeCoinsFound} meme coins!)`)
@@ -355,6 +367,20 @@ export async function analyzeWallet(address: string): Promise<WalletAnalysis> {
 
   const results = await Promise.all(chainPromises)
   const validResults = results.filter(r => r !== null)
+
+  // ✅ Check if we found any assets at all!
+  if (validResults.length === 0) {
+    console.log('⚠️ No assets found on any chain for this wallet')
+    // Return empty but valid result
+    return {
+      address,
+      total_value_usd: '0',
+      chains: {},
+      all_tokens: [],
+      total_meme_coins: 0,
+      analyzed_at: new Date().toISOString()
+    }
+  }
 
   // Aggregate data
   const chains: any = {}
