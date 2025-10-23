@@ -3,20 +3,6 @@ import { analyzeWallet } from '@/lib/blockchain'
 
 const cryptoCelebrities = [
   {
-    id: 'elon',
-    name: 'Elon Musk 🚀',
-    avatar: 'https://pbs.twimg.com/profile_images/1815749056821346304/jS8I28PL_400x400.jpg',
-    traits: ['Doge Enthusiast', 'Mars Dreamer', 'Meme Lord', 'Innovation Addict'],
-    why: "You both love memes, disruption, and taking crypto to the moon! Your shared vision of making humanity multi-planetary through crypto innovation is legendary.",
-    fact: "You both tweet about Dogecoin at 3 AM! 🌙🐕",
-    compatibility: { min: 88, max: 98 },
-    matchConditions: {
-      hasDoge: true,
-      prefersMeme: true,
-      multiChain: true,
-    }
-  },
-  {
     id: 'vitalik',
     name: 'Vitalik Buterin 🦄',
     avatar: 'https://pbs.twimg.com/profile_images/977496875887558661/L86xyLF4_400x400.jpg',
@@ -27,21 +13,7 @@ const cryptoCelebrities = [
     matchConditions: {
       hasEth: true,
       usesL2: true,
-      defiUser: true,
-    }
-  },
-  {
-    id: 'cz',
-    name: 'CZ (Changpeng Zhao) 💰',
-    avatar: 'https://pbs.twimg.com/profile_images/1470217541593337857/Kqq2P66w_400x400.jpg',
-    traits: ['Trading Master', 'Global Visionary', 'Builder Mindset', 'Community First'],
-    why: "Your entrepreneurial spirit and ability to build at lightning speed matches CZ's legendary pace. Together, you'll disrupt the entire financial system!",
-    fact: "You both check trading volumes more than your bank account! 📊💸",
-    compatibility: { min: 85, max: 96 },
-    matchConditions: {
-      usesBsc: true,
-      hasStables: true,
-      highVolume: true,
+      defiUser: false,
     }
   },
   {
@@ -54,8 +26,36 @@ const cryptoCelebrities = [
     compatibility: { min: 92, max: 99 },
     matchConditions: {
       hasWbtc: true,
-      hodler: true,
-      btcMaxi: true,
+      hodler: false,
+      btcMaxi: false,
+    }
+  },
+  {
+    id: 'cz',
+    name: 'CZ (Changpeng Zhao) 💰',
+    avatar: 'https://pbs.twimg.com/profile_images/1470217541593337857/Kqq2P66w_400x400.jpg',
+    traits: ['Trading Master', 'Global Visionary', 'Builder Mindset', 'Community First'],
+    why: "Your entrepreneurial spirit and ability to build at lightning speed matches CZ's legendary pace. Together, you'll disrupt the entire financial system!",
+    fact: "You both check trading volumes more than your bank account! 📊💸",
+    compatibility: { min: 85, max: 96 },
+    matchConditions: {
+      usesBsc: true,
+      hasStables: false,
+      highVolume: false,
+    }
+  },
+  {
+    id: 'elon',
+    name: 'Elon Musk 🚀',
+    avatar: 'https://pbs.twimg.com/profile_images/1815749056821346304/jS8I28PL_400x400.jpg',
+    traits: ['Innovation Addict', 'Mars Dreamer', 'Tech Visionary', 'Disruption King'],
+    why: "Your love for innovation and taking bold risks matches Elon's legendary style. Together, you'll revolutionize the future!",
+    fact: "You both think about Mars while others sleep! 🌙🚀",
+    compatibility: { min: 85, max: 97 },
+    matchConditions: {
+      hasDoge: false,
+      prefersMeme: false,
+      multiChain: true,
     }
   },
   {
@@ -68,35 +68,176 @@ const cryptoCelebrities = [
     compatibility: { min: 87, max: 97 },
     matchConditions: {
       diversified: true,
-      multiChain: true,
-      innovativeTokens: true,
+      multiChain: false,
+      innovativeTokens: false,
     }
   },
   {
-    id: 'satoshi',
-    name: 'Satoshi Nakamoto 👻',
-    avatar: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/1200px-Bitcoin.svg.png',
-    traits: ['Anonymous Legend', 'Cypherpunk', 'P2P Pioneer', 'Mystery Master'],
-    why: "You understand the true vision of decentralization and privacy. Your commitment to permissionless money and financial sovereignty is unmatched. You might BE Satoshi!",
-    fact: "You both value privacy more than fame! 🥷🔐",
-    compatibility: { min: 95, max: 100 },
+    id: 'balaji',
+    name: 'Balaji Srinivasan 🧠',
+    avatar: 'https://pbs.twimg.com/profile_images/1761868990624124928/O9K0Qn8q_400x400.jpg',
+    traits: ['Network State Visionary', 'Bitcoin Bull', 'Tech Philosopher', 'Future Thinker'],
+    why: "Your understanding of crypto's role in rebuilding society and forming network states aligns perfectly with Balaji's vision!",
+    fact: "You both believe Bitcoin fixes everything! ⚡🌍",
+    compatibility: { min: 88, max: 98 },
     matchConditions: {
-      oldWallet: true,
+      hasEth: false,
       hasWbtc: true,
-      simpleHolder: true,
+      defiUser: false,
     }
   },
   {
-    id: 'sbf',
-    name: 'SBF (Sam Bankman-Fried) ⚠️',
-    avatar: 'https://pbs.twimg.com/profile_images/1518730952162791424/gBwEHNIl_400x400.jpg',
-    traits: ['Risk Management Fail', 'Leverage Lover', 'Yacht Collector', 'Compliance Optional'],
-    why: "This is actually a BAD match! You're too smart to fall for over-leveraged schemes. Unlike SBF, you understand that customer funds aren't 'company assets'! 😅",
-    fact: "You both use Slack... but you don't use it to commit fraud! 🚫💸",
-    compatibility: { min: 5, max: 15 },
+    id: 'hayden',
+    name: 'Hayden Adams 🦄',
+    avatar: 'https://pbs.twimg.com/profile_images/1634301697483763712/2EhsGVwo_400x400.jpg',
+    traits: ['DeFi Pioneer', 'Uniswap Creator', 'DEX Believer', 'AMM Genius'],
+    why: "Your passion for decentralized trading and DeFi protocols matches Hayden's revolutionary spirit. You understand the power of AMMs!",
+    fact: "You both prefer swapping on DEXs over CEXs! 🦄💱",
+    compatibility: { min: 89, max: 98 },
     matchConditions: {
-      reckless: true,
-      noTokens: true,
+      hasEth: true,
+      defiUser: true,
+      usesL2: false,
+    }
+  },
+  {
+    id: 'anatoly',
+    name: 'Anatoly Yakovenko ⚡',
+    avatar: 'https://pbs.twimg.com/profile_images/1529571393504362496/DIFlCEBq_400x400.jpg',
+    traits: ['Solana Founder', 'Speed Obsessed', 'High TPS Believer', 'Compiler Expert'],
+    why: "Your appreciation for fast, scalable blockchains and low fees perfectly aligns with Anatoly's Solana vision!",
+    fact: "You both think 400ms block times are still too slow! ⚡🚀",
+    compatibility: { min: 86, max: 96 },
+    matchConditions: {
+      hasEth: false,
+      multiChain: true,
+      defiUser: false,
+    }
+  },
+  {
+    id: 'andre',
+    name: 'Andre Cronje 🏗️',
+    avatar: 'https://pbs.twimg.com/profile_images/1467992413284896769/w8gg1Zy3_400x400.jpg',
+    traits: ['DeFi Builder', 'Yield Farmer', 'Protocol Designer', 'Code Wizard'],
+    why: "Your love for complex DeFi protocols and yield optimization matches Andre's building philosophy perfectly!",
+    fact: "You both understand impermanent loss better than most! 📊🌾",
+    compatibility: { min: 87, max: 97 },
+    matchConditions: {
+      defiUser: true,
+      diversified: true,
+      hasEth: false,
+    }
+  },
+  {
+    id: 'nic',
+    name: 'Nic Carter 📊',
+    avatar: 'https://pbs.twimg.com/profile_images/1489365868033454081/Uk-LluZb_400x400.jpg',
+    traits: ['Bitcoin Analyst', 'On-Chain Researcher', 'Crypto Economist', 'Data Nerd'],
+    why: "Your analytical approach to crypto and understanding of on-chain metrics aligns with Nic's data-driven philosophy!",
+    fact: "You both analyze blockchain data for breakfast! 📈🔍",
+    compatibility: { min: 86, max: 95 },
+    matchConditions: {
+      hasWbtc: true,
+      hodler: false,
+      btcMaxi: false,
+    }
+  },
+  {
+    id: 'stani',
+    name: 'Stani Kulechov 👻',
+    avatar: 'https://pbs.twimg.com/profile_images/1634256028968534017/b_FQ8qNu_400x400.jpg',
+    traits: ['Aave Founder', 'DeFi Lending Pioneer', 'Governance Believer', 'GHO Creator'],
+    why: "Your interest in lending protocols and DeFi infrastructure matches Stani's vision for decentralized finance!",
+    fact: "You both believe in the power of money markets! 💰👻",
+    compatibility: { min: 88, max: 97 },
+    matchConditions: {
+      hasEth: true,
+      defiUser: true,
+      hasStables: false,
+    }
+  },
+  {
+    id: 'dankrad',
+    name: 'Dankrad Feist 🌈',
+    avatar: 'https://pbs.twimg.com/profile_images/1631991780991406081/SgClwVL2_400x400.jpg',
+    traits: ['Ethereum Researcher', 'Danksharding Pioneer', 'Scaling Expert', 'Math Wizard'],
+    why: "Your understanding of Ethereum's scaling solutions and rollups shows you think like Dankrad about the future!",
+    fact: "You both get excited about KZG commitments! 🌈🔬",
+    compatibility: { min: 89, max: 98 },
+    matchConditions: {
+      hasEth: true,
+      usesL2: true,
+      defiUser: false,
+    }
+  },
+  {
+    id: 'cobie',
+    name: 'Cobie 🎭',
+    avatar: 'https://pbs.twimg.com/profile_images/1493210553054351360/L3UpY0Kj_400x400.jpg',
+    traits: ['Crypto Trader', 'Market Analyst', 'Meme Connoisseur', 'Alpha Hunter'],
+    why: "Your trading instincts and ability to spot alpha early matches Cobie's legendary market sense!",
+    fact: "You both check your portfolio during dinner! 📱💎",
+    compatibility: { min: 84, max: 94 },
+    matchConditions: {
+      diversified: true,
+      multiChain: false,
+      hasStables: false,
+    }
+  },
+  {
+    id: 'jesse',
+    name: 'Jesse Pollak 🔵',
+    avatar: 'https://pbs.twimg.com/profile_images/1765801702087245824/MaJK1Rqn_400x400.jpg',
+    traits: ['Base Lead', 'Onchain Believer', 'Builder Culture', 'Optimistic Vision'],
+    why: "Your enthusiasm for bringing billions onchain and building on Base aligns with Jesse's mission perfectly!",
+    fact: "You both believe the future is onchain! 🔵⛓️",
+    compatibility: { min: 87, max: 96 },
+    matchConditions: {
+      hasEth: true,
+      usesL2: true,
+      multiChain: false,
+    }
+  },
+  {
+    id: 'punk6529',
+    name: 'Punk6529 🖼️',
+    avatar: 'https://pbs.twimg.com/profile_images/1570118146045796353/csLlv5xY_400x400.jpg',
+    traits: ['NFT Visionary', 'Decentralization Maxi', 'Art Collector', 'Freedom Fighter'],
+    why: "Your belief in digital ownership and NFTs as tools for freedom matches 6529's revolutionary vision!",
+    fact: "You both understand NFTs are more than JPEGs! 🖼️✨",
+    compatibility: { min: 85, max: 95 },
+    matchConditions: {
+      hasEth: true,
+      diversified: false,
+      defiUser: false,
+    }
+  },
+  {
+    id: 'polynya',
+    name: 'Polynya 🔷',
+    avatar: 'https://pbs.twimg.com/profile_images/1631659176654303234/hFCiIuqP_400x400.jpg',
+    traits: ['Rollup Researcher', 'Scaling Analyst', 'L2 Maximalist', 'Tech Writer'],
+    why: "Your deep understanding of rollups and Layer 2 scaling shows you share Polynya's vision for Ethereum's future!",
+    fact: "You both believe rollups are inevitable! 🔷📊",
+    compatibility: { min: 88, max: 97 },
+    matchConditions: {
+      hasEth: true,
+      usesL2: true,
+      defiUser: false,
+    }
+  },
+  {
+    id: 'ryan',
+    name: 'Ryan Sean Adams 🦇',
+    avatar: 'https://pbs.twimg.com/profile_images/1595540207545745409/cdgZI1LV_400x400.jpg',
+    traits: ['Bankless Co-Founder', 'ETH Bull', 'DeFi Educator', 'Web3 Pioneer'],
+    why: "Your commitment to going bankless and understanding of Ethereum's monetary premium aligns with Ryan's mission!",
+    fact: "You both see ETH as ultrasound money! 🦇💰",
+    compatibility: { min: 88, max: 97 },
+    matchConditions: {
+      hasEth: true,
+      defiUser: true,
+      hodler: false,
     }
   },
   {
@@ -104,13 +245,13 @@ const cryptoCelebrities = [
     name: 'Andreas Antonopoulos 🎓',
     avatar: 'https://pbs.twimg.com/profile_images/1201297355916705792/H_KBJGnx_400x400.jpg',
     traits: ['Bitcoin Educator', 'Tech Explainer', 'Decentralization Advocate', 'Open Source Champion'],
-    why: "Your passion for education and making crypto accessible to everyone mirrors Andreas's mission. Together, you'll orange-pill billions through knowledge!",
-    fact: "You both can explain Bitcoin to your grandma AND she actually gets it! 👵💡",
-    compatibility: { min: 89, max: 98 },
+    why: "Your passion for education and making crypto accessible to everyone mirrors Andreas's mission!",
+    fact: "You both can explain Bitcoin to your grandma! 👵💡",
+    compatibility: { min: 87, max: 96 },
     matchConditions: {
-      balanced: true,
-      defiUser: true,
-      ethUser: true,
+      balanced: false,
+      defiUser: false,
+      ethUser: false,
     }
   },
 ]
@@ -180,23 +321,34 @@ function findBestMatch(analysis: any, fid: number) {
   const scores = cryptoCelebrities.map(celeb => {
     let score = 0
     
-    // Match conditions kontrolü
-    if (celeb.matchConditions.hasEth && analysis.hasEth) score += 20
-    if (celeb.matchConditions.hasWbtc && analysis.hasWbtc) score += 20
-    if (celeb.matchConditions.hasStables && analysis.hasStables) score += 15
-    if (celeb.matchConditions.usesBsc && analysis.usesBsc) score += 15
-    if (celeb.matchConditions.usesL2 && analysis.usesL2) score += 15
-    if (celeb.matchConditions.multiChain && analysis.multiChain) score += 20
-    if (celeb.matchConditions.diversified && analysis.diversified) score += 15
-    if (celeb.matchConditions.defiUser && analysis.defiUser) score += 20
+    // Portfolio based scoring (yüksek ağırlık)
+    if (celeb.matchConditions.hasEth && analysis.hasEth) score += 25
+    if (celeb.matchConditions.hasWbtc && analysis.hasWbtc) score += 25
+    if (celeb.matchConditions.hasStables && analysis.hasStables) score += 20
+    if (celeb.matchConditions.usesBsc && analysis.usesBsc) score += 20
+    if (celeb.matchConditions.usesL2 && analysis.usesL2) score += 20
+    if (celeb.matchConditions.multiChain && analysis.multiChain) score += 25
+    if (celeb.matchConditions.diversified && analysis.diversified) score += 20
+    if (celeb.matchConditions.defiUser && analysis.defiUser) score += 25
     
-    // Büyük portfolio = daha yüksek tier eşleşmeler
-    if (analysis.totalValue > 10000) score += 15
-    else if (analysis.totalValue > 1000) score += 10
-    else if (analysis.totalValue > 100) score += 5
+    // Portfolio value bonuses
+    if (analysis.totalValue > 10000) score += 20
+    else if (analysis.totalValue > 1000) score += 15
+    else if (analysis.totalValue > 100) score += 10
+    else if (analysis.totalValue > 10) score += 5
     
-    // FID bazlı randomness
-    const fidBonus = Math.abs((fid * 7) % 20)
+    // Active chains bonus
+    if (analysis.activeChains >= 5) score += 15
+    else if (analysis.activeChains >= 3) score += 10
+    else if (analysis.activeChains >= 2) score += 5
+    
+    // Negative scoring for mismatches (important!)
+    if (celeb.matchConditions.hasEth && !analysis.hasEth) score -= 15
+    if (celeb.matchConditions.hasWbtc && !analysis.hasWbtc) score -= 15
+    if (celeb.matchConditions.defiUser && !analysis.defiUser) score -= 10
+    
+    // Small FID-based randomness (5% variance)
+    const fidBonus = Math.abs((fid * 7) % 10)
     score += fidBonus
     
     return { celeb, score }
@@ -205,11 +357,14 @@ function findBestMatch(analysis: any, fid: number) {
   // En yüksek skorlu match'i bul
   scores.sort((a, b) => b.score - a.score)
   
-  // Top 3'ten random seç (çeşitlilik için)
-  const topMatches = scores.slice(0, 3)
-  const selectedMatch = topMatches[fid % topMatches.length]
+  // Log scores for debugging
+  console.log('Match scores:', scores.slice(0, 5).map(s => ({ 
+    name: s.celeb.name, 
+    score: s.score 
+  })))
   
-  return selectedMatch.celeb
+  // En yüksek skorlu celebrity'yi seç
+  return scores[0].celeb
 }
 
 export async function POST(request: NextRequest) {
@@ -248,9 +403,20 @@ export async function POST(request: NextRequest) {
     await new Promise(resolve => setTimeout(resolve, 2000))
 
     // En uygun celebrity'yi seç
-    const match = portfolioAnalysis 
-      ? findBestMatch(portfolioAnalysis, fid)
-      : cryptoCelebrities[Math.abs(fid % cryptoCelebrities.length)]
+    let match
+    if (portfolioAnalysis && portfolioAnalysis.totalValue > 0) {
+      // Gerçek portfolio varsa - en uygun match
+      match = findBestMatch(portfolioAnalysis, fid)
+      console.log('Portfolio-based match:', match.name)
+    } else {
+      // Portfolio yok - balanced/neutral match seç
+      // Vitalik, Hayden, Ryan gibi balanced karakterler
+      const neutralMatches = cryptoCelebrities.filter(c => 
+        ['vitalik', 'hayden', 'ryan', 'andreas', 'balaji'].includes(c.id)
+      )
+      match = neutralMatches[Math.abs(fid % neutralMatches.length)] || cryptoCelebrities[0]
+      console.log('FID-based neutral match:', match.name)
+    }
 
     // Score hesapla
     const score = match.compatibility.min + 
@@ -297,37 +463,61 @@ export async function POST(request: NextRequest) {
 
 function generatePortfolioInsight(analysis: any, match: any, username: string): string {
   const insights = []
+  const firstName = match.name.split(' ')[0]
   
-  if (analysis.multiChain) {
-    insights.push(`${username}, your multi-chain mastery across ${analysis.activeChains} networks shows you think like ${match.name.split(' ')[0]}!`)
-  }
-  
-  if (analysis.defiUser) {
-    insights.push(`Your DeFi portfolio screams ${match.name.split(' ')[0]} energy - you're not just holding, you're BUILDING!`)
-  }
-  
-  if (analysis.totalValue > 10000) {
-    insights.push(`With $${Math.floor(analysis.totalValue)} in crypto, you and ${match.name.split(' ')[0]} are both whales! 🐋`)
-  } else if (analysis.totalValue > 1000) {
-    insights.push(`Your $${Math.floor(analysis.totalValue)} portfolio shows serious commitment - ${match.name.split(' ')[0]} would be proud!`)
-  }
-  
-  if (analysis.diversified) {
-    insights.push(`Your diversified portfolio strategy mirrors ${match.name.split(' ')[0]}'s approach to crypto investing!`)
+  // Specific token holdings
+  if (analysis.hasEth && analysis.usesL2) {
+    insights.push(`${username}, you're using L2s like ${firstName}! That's next-level Ethereum thinking. 🦄⚡`)
+  } else if (analysis.hasEth) {
+    insights.push(`${username}, your ETH holdings show you understand sound money like ${firstName}! ⟠💎`)
   }
   
   if (analysis.hasWbtc) {
-    insights.push(`Holding WBTC? You and ${match.name.split(' ')[0]} understand Bitcoin's digital gold thesis!`)
+    insights.push(`Holding WBTC? You and ${firstName} both see Bitcoin's value! 💎₿`)
   }
   
-  if (analysis.usesL2) {
-    insights.push(`Using L2s shows you're tech-savvy like ${match.name.split(' ')[0]} - scaling solutions FTW!`)
+  if (analysis.hasStables && analysis.usesBsc) {
+    insights.push(`Your stablecoin strategy on BSC mirrors ${firstName}'s pragmatic approach! 💰⚡`)
+  } else if (analysis.hasStables) {
+    insights.push(`Smart use of stablecoins - ${firstName} would approve your risk management! 💵✅`)
   }
   
+  // Multi-chain prowess
+  if (analysis.activeChains >= 5) {
+    insights.push(`${analysis.activeChains} chains!? You're a multi-chain master like ${firstName}! 🌐🚀`)
+  } else if (analysis.activeChains >= 3) {
+    insights.push(`Active on ${analysis.activeChains} chains - ${firstName} level diversification! 🌐💪`)
+  }
+  
+  // DeFi engagement
+  if (analysis.defiUser && analysis.diversified) {
+    insights.push(`Your DeFi portfolio is chef's kiss! ${firstName} sees a fellow protocol power user! 🏦👨‍🍳`)
+  } else if (analysis.defiUser) {
+    insights.push(`DeFi native detected! You and ${firstName} are building the future of finance! 🏦⚡`)
+  }
+  
+  // Portfolio size
+  if (analysis.totalValue > 10000) {
+    insights.push(`$${Math.floor(analysis.totalValue).toLocaleString()} portfolio? ${firstName} respects the commitment! 🐋💰`)
+  } else if (analysis.totalValue > 1000) {
+    insights.push(`Your $${Math.floor(analysis.totalValue).toLocaleString()} portfolio shows you're serious like ${firstName}! 💪💰`)
+  } else if (analysis.totalValue > 100) {
+    insights.push(`Starting strong with $${Math.floor(analysis.totalValue)}! ${firstName} started somewhere too! 🚀💫`)
+  }
+  
+  // Diversification
+  if (analysis.diversified && analysis.multiChain) {
+    insights.push(`Diversified across chains? You think like ${firstName} - don't put all eggs in one basket! 🥚🌐`)
+  } else if (analysis.diversified) {
+    insights.push(`Your diversified holdings match ${firstName}'s investment philosophy perfectly! 📊✨`)
+  }
+  
+  // Default fallback
   if (insights.length === 0) {
-    insights.push(`${username}, your portfolio vibe perfectly aligns with ${match.name.split(' ')[0]}'s philosophy!`)
+    insights.push(`${username}, your on-chain activity shows you vibe with ${firstName}'s crypto philosophy! 🎯✨`)
   }
   
+  // Return random insight from matches
   return insights[Math.floor(Math.random() * insights.length)]
 }
 
