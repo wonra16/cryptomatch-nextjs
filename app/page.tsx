@@ -6,8 +6,10 @@ import HomeScreen from '@/components/HomeScreen'
 import LoadingScreen from '@/components/LoadingScreen'
 import ResultScreen from '@/components/ResultScreen'
 import UserMatchScreen from '@/components/UserMatchScreen'
+import PortfolioScreen from '@/components/PortfolioScreen'
+import WalletInfoModal from '@/components/WalletInfoModal'
 
-type Screen = 'home' | 'loading' | 'result' | 'user-match' | 'error'
+type Screen = 'home' | 'loading' | 'result' | 'user-match' | 'portfolio' | 'error'
 
 export default function Page() {
   const [screen, setScreen] = useState<Screen>('home')
@@ -15,7 +17,9 @@ export default function Page() {
   const [loading, setLoading] = useState(true)
   const [matchData, setMatchData] = useState<any>(null)
   const [userMatchData, setUserMatchData] = useState<any>(null)
+  const [portfolioData, setPortfolioData] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
+  const [showWalletModal, setShowWalletModal] = useState(false)
 
   useEffect(() => {
     const initSDK = async () => {
@@ -44,6 +48,21 @@ export default function Page() {
       return
     }
 
+    // Show wallet info modal first
+    setShowWalletModal(true)
+  }
+
+  const handleContinueMatch = async () => {
+    setShowWalletModal(false)
+
+    // Get wallet address from Warpcast context
+    const walletAddress = context.user.custody_address || 
+                          context.user.verified_addresses?.eth_addresses?.[0] ||
+                          context.user.verified_addresses?.[0]
+
+    console.log('🔍 Finding match for FID:', context.user.fid)
+    console.log('💰 Wallet address:', walletAddress)
+
     setLoading(true)
     setScreen('loading')
 
@@ -53,7 +72,8 @@ export default function Page() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fid: context.user.fid,
-          username: context.user.username || `fid${context.user.fid}`
+          username: context.user.username || `fid${context.user.fid}`,
+          walletAddress: walletAddress // ← Send wallet for portfolio analysis
         })
       })
 
@@ -66,6 +86,7 @@ export default function Page() {
         throw new Error(data.error || 'Match failed')
       }
     } catch (err: any) {
+      console.error('❌ Match error:', err)
       setError(err.message)
       setScreen('error')
     } finally {
@@ -84,6 +105,8 @@ export default function Page() {
     setScreen('loading')
 
     try {
+      console.log('👥 Finding similar users for FID:', context.user.fid)
+      
       const res = await fetch('/api/user-match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -93,15 +116,67 @@ export default function Page() {
         })
       })
 
+      console.log('📡 User match response status:', res.status)
       const data = await res.json()
+      console.log('📦 User match data:', data)
       
       if (data.success) {
         setUserMatchData(data)
         setScreen('user-match')
       } else {
-        throw new Error(data.error || 'User match failed')
+        // Better error message
+        throw new Error(data.error || 'Could not find similar users. Try following more people on Farcaster!')
       }
     } catch (err: any) {
+      console.error('❌ User match error:', err)
+      setError(err.message)
+      setScreen('error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePortfolio = async () => {
+    if (!context?.user?.fid) {
+      setError('Please open in Warpcast')
+      setScreen('error')
+      return
+    }
+
+    // Get wallet address from context or Neynar
+    const walletAddress = context.user.custody_address || context.user.verified_addresses?.[0]
+
+    if (!walletAddress) {
+      setError('No wallet address found. Connect your wallet on Farcaster!')
+      setScreen('error')
+      return
+    }
+
+    setLoading(true)
+    setScreen('loading')
+
+    try {
+      console.log('💰 Analyzing portfolio for:', walletAddress)
+      
+      const res = await fetch('/api/portfolio/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          walletAddress,
+          username: context.user.username || `fid${context.user.fid}`
+        })
+      })
+
+      const data = await res.json()
+      
+      if (data.success) {
+        setPortfolioData(data)
+        setScreen('portfolio')
+      } else {
+        throw new Error(data.error || 'Portfolio analysis failed')
+      }
+    } catch (err: any) {
+      console.error('❌ Portfolio error:', err)
       setError(err.message)
       setScreen('error')
     } finally {
@@ -138,23 +213,36 @@ export default function Page() {
 
   return (
     <>
+      {/* Wallet Info Modal */}
+      <WalletInfoModal
+        show={showWalletModal}
+        hasWallet={!!(context?.user?.custody_address || context?.user?.verified_addresses?.eth_addresses?.[0])}
+        onContinue={handleContinueMatch}
+        onCancel={() => setShowWalletModal(false)}
+      />
+
       {screen === 'home' && (
         <HomeScreen
           context={context}
           loading={false}
           onFindMatch={handleFindMatch}
           onUserMatch={handleUserMatch}
+          onPortfolio={handlePortfolio}
         />
       )}
       
       {screen === 'loading' && <LoadingScreen />}
       
       {screen === 'result' && matchData && (
-        <ResultScreen data={matchData} onBack={handleBack} />
+        <ResultScreen data={matchData} context={context} onBack={handleBack} />
       )}
       
       {screen === 'user-match' && userMatchData && (
         <UserMatchScreen data={userMatchData} onBack={handleBack} />
+      )}
+      
+      {screen === 'portfolio' && portfolioData && (
+        <PortfolioScreen data={portfolioData} onBack={handleBack} />
       )}
     </>
   )

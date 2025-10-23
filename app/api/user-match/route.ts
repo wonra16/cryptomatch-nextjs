@@ -27,16 +27,27 @@ interface UserMatchResult {
 }
 
 async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
+  console.log('🔍 Finding similar users for FID:', fid)
+  
   // Get user's data
   const userProfile = await getUserProfile(fid)
   if (!userProfile) throw new Error('User not found')
+  
+  console.log('✅ User profile loaded:', userProfile.username)
   
   const userCasts = await getUserCasts(fid, 25)
   const userFollowing = await getUserFollowing(fid, 100)
   const userWallet = getWalletFromUser(userProfile)
   
+  console.log('📊 User stats:', {
+    casts: userCasts.length,
+    following: userFollowing.length,
+    hasWallet: !!userWallet
+  })
+  
   // Analyze user's content
   const userContentProfile = analyzeContent(userCasts.map((c: any) => c.text || ''))
+  console.log('📝 User interests:', userContentProfile.topicsDetected.slice(0, 5))
   
   // Analyze user's portfolio (if wallet available)
   let userPortfolio = null
@@ -53,7 +64,8 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
   const potentialMatches: UserMatchResult[] = []
   
   // Get a sample of users from following list
-  const sampleFollowing = userFollowing.slice(0, 20)
+  const sampleFollowing = userFollowing.slice(0, 30) // ← Increased from 20 to 30
+  console.log(`🎯 Analyzing ${sampleFollowing.length} users from following list`)
   
   for (const followedFid of sampleFollowing) {
     try {
@@ -81,8 +93,10 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
         (contentSimilarity * 0.6) + (socialScore * 0.4)
       )
       
-      // Only add if score > 50
-      if (compatibilityScore > 50) {
+      console.log(`🔢 FID ${followedFid} (@${followedProfile.username}): score=${compatibilityScore}, content=${contentSimilarity}, social=${socialScore}`)
+      
+      // Only add if score > 40 (lowered from 50)
+      if (compatibilityScore > 40) {
         const commonInterests = userContentProfile.topicsDetected.filter((t: string) =>
           followedContentProfile.topicsDetected.includes(t)
         )
@@ -107,10 +121,12 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
           common_following: commonFollows.length,
           portfolio_similarity: 0
         })
+        
+        console.log(`✅ Match found! @${followedProfile.username} - Score: ${compatibilityScore}`)
       }
       
-      // Limit API calls - stop after finding 5 good matches
-      if (potentialMatches.length >= 5) break
+      // Limit API calls - stop after finding 10 good matches (increased from 5)
+      if (potentialMatches.length >= 10) break
       
     } catch (error) {
       console.error(`Error analyzing FID ${followedFid}:`, error)
@@ -118,6 +134,7 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
     }
   }
   
+  console.log(`🎉 Found ${potentialMatches.length} total matches`)
   return potentialMatches.sort((a, b) => b.compatibility_score - a.compatibility_score)
 }
 

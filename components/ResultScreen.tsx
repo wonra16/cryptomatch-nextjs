@@ -1,9 +1,10 @@
 interface ResultScreenProps {
-  data: any  // ← Changed from result to data (matching page.tsx)
-  onBack: () => void  // ← Changed from onBack/onBack to onBack
+  data: any
+  context: any  // ← Added for user avatar
+  onBack: () => void
 }
 
-export default function ResultScreen({ data, onBack }: ResultScreenProps) {
+export default function ResultScreen({ data, context, onBack }: ResultScreenProps) {
   // Defensive programming - check if data exists
   if (!data) {
     return (
@@ -38,8 +39,9 @@ export default function ResultScreen({ data, onBack }: ResultScreenProps) {
     content_summary = null,
   } = compatibility
 
-  const userAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=user'
-  const userName = 'You'
+  // Get user info from context
+  const userAvatar = context?.user?.pfpUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user'
+  const userName = context?.user?.displayName || context?.user?.username || 'You'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white relative overflow-hidden">

@@ -3,9 +3,10 @@ interface HomeScreenProps {
   loading: boolean
   onFindMatch: () => void
   onUserMatch: () => void
+  onPortfolio: () => void
 }
 
-export default function HomeScreen({ context, loading, onFindMatch, onUserMatch }: HomeScreenProps) {
+export default function HomeScreen({ context, loading, onFindMatch, onUserMatch, onPortfolio }: HomeScreenProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white relative overflow-hidden">
       {/* Animated Background */}
@@ -89,14 +90,15 @@ export default function HomeScreen({ context, loading, onFindMatch, onUserMatch 
             </div>
           </div>
 
-          {/* CTA Buttons */}
-          <div className="w-full space-y-4">
-            {/* Celebrity Match */}
+          {/* CTA Buttons - Modern 3-Button Layout */}
+          <div className="w-full space-y-3">
+            
+            {/* Primary: Celebrity Match */}
             <button
               onClick={onFindMatch}
               disabled={loading}
               className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white py-6 px-8 rounded-2xl text-xl md:text-2xl font-black 
-                       hover:scale-105 active:scale-95 transition-all duration-300
+                       hover:scale-[1.02] active:scale-98 transition-all duration-200
                        disabled:opacity-50 disabled:cursor-not-allowed
                        shadow-2xl hover:shadow-pink-500/50 relative overflow-hidden group"
             >
@@ -116,22 +118,45 @@ export default function HomeScreen({ context, loading, onFindMatch, onUserMatch 
               </span>
             </button>
 
-            {/* User Match - NEW! */}
-            <button
-              onClick={onUserMatch}
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-xl text-white py-5 px-8 rounded-2xl text-lg md:text-xl font-bold 
-                       hover:scale-105 active:scale-95 transition-all duration-300
-                       border-2 border-purple-400/30 shadow-xl hover:shadow-purple-500/30
-                       hover:from-purple-600/30 hover:to-pink-600/30 group
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="flex items-center justify-center gap-3">
-                <span className="text-2xl group-hover:scale-110 transition-transform">👥</span>
-                <span>Find Similar Users</span>
-                <span className="text-xs bg-green-400 text-black px-2 py-1 rounded-full font-black">NEW</span>
-              </span>
-            </button>
+            {/* Secondary Buttons Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              
+              {/* User Match */}
+              <button
+                onClick={onUserMatch}
+                disabled={loading}
+                className="bg-gradient-to-br from-purple-600/90 to-pink-600/90 backdrop-blur-xl text-white py-4 px-4 rounded-xl text-base md:text-lg font-bold 
+                         hover:scale-[1.02] active:scale-98 transition-all duration-200
+                         border border-purple-400/30 shadow-lg hover:shadow-purple-500/30
+                         disabled:opacity-50 disabled:cursor-not-allowed relative group overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                <span className="relative z-10 flex flex-col items-center justify-center gap-2">
+                  <span className="text-3xl group-hover:scale-110 transition-transform">👥</span>
+                  <span className="text-sm font-extrabold">Find Similar</span>
+                  <span className="text-xs font-bold opacity-80">Users</span>
+                </span>
+                <span className="absolute top-2 right-2 text-[10px] bg-green-400 text-black px-1.5 py-0.5 rounded-md font-black">NEW</span>
+              </button>
+
+              {/* Portfolio */}
+              <button
+                onClick={onPortfolio}
+                disabled={loading}
+                className="bg-gradient-to-br from-blue-600/90 to-cyan-600/90 backdrop-blur-xl text-white py-4 px-4 rounded-xl text-base md:text-lg font-bold 
+                         hover:scale-[1.02] active:scale-98 transition-all duration-200
+                         border border-blue-400/30 shadow-lg hover:shadow-cyan-500/30
+                         disabled:opacity-50 disabled:cursor-not-allowed relative group overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                <span className="relative z-10 flex flex-col items-center justify-center gap-2">
+                  <span className="text-3xl group-hover:scale-110 transition-transform">💰</span>
+                  <span className="text-sm font-extrabold">Analyze</span>
+                  <span className="text-xs font-bold opacity-80">Portfolio</span>
+                </span>
+              </button>
+              
+            </div>
           </div>
 
           {/* User Info */}
