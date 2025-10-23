@@ -1,345 +1,175 @@
-# 🚀 CryptoMatch V3.0 - AI-Powered Matching Platform
+# 💕 CryptoMatch - Farcaster Mini App
 
-**Celebrity & User-to-User Matching with Portfolio & Content Analysis**
+AI-powered crypto personality matching! Find your perfect crypto soulmate.
 
----
+## 🚀 Features
 
-## ✨ Özellikler
+- ✅ Farcaster Mini App SDK integration
+- ✅ Interactive UI with Tailwind CSS
+- ✅ AI-powered matching algorithm
+- ✅ Share results to Warpcast
+- ✅ Fully responsive design
+- ✅ Production-ready
 
-### 🌟 Celebrity Matching
-- **100+ Celebrity Database** - Crypto legends, müzisyenler, sporcular, sanatçılar
-- **Portfolio Analysis** - 7 blockchain tarama (ETH, BSC, Polygon, Arbitrum, Optimism, Base, Avalanche)
-- **Content Analysis** - Farcaster cast'lerinizi NLP ile analiz eder
-- **Smart Scoring** - Portfolio (30p) + İçerik (25p) + Sosyal (20p) + NFT (15p) + Vibe (10p)
-
-### 👥 User Matching (YENİ!)
-- Benzer ilgi alanlarına sahip kullanıcıları bulur
-- Ortak takip edilen hesapları analiz eder
-- Portfolio benzerliğini karşılaştırır
-- Social graph analizi
-
-### 🤖 AI Features
-- Otomatik ilgi alanı çıkarma (NLP)
-- Sentiment analizi (pozitif/nötr/negatif)
-- NFT koleksiyonu tespiti
-- Crypto proje mention analizi
-- 30+ ilgi kategorisi (DeFi, NFT, Gaming, Music, Sports, Art, vb.)
-
----
-
-## 🔐 API GÜVENLİĞİ (ÖNEMLİ!)
-
-### GitHub Private Yapmaya GEREK YOK! ✅
-
-API key'lerinizi **Vercel Environment Variables** ile güvenli şekilde saklayın:
-
-1. **Vercel Dashboard** → Settings → Environment Variables
-2. Şu değişkenleri ekleyin:
-   ```
-   NEYNAR_API_KEY=your_actual_key_here
-   ```
-3. Tüm environment'lar için (Production, Preview, Development) ekleyin
-4. Deploy edin!
-
-**ASLA** `.env` dosyasını GitHub'a push etmeyin! (.gitignore zaten engelliyor)
-
----
-
-## 📦 KURULUM
-
-### 1. Projeyi Aç
-```bash
-cd cryptomatch-v3
-```
-
-### 2. Dependencies Yükle
-```bash
-npm install
-```
-
-### 3. Environment Variables (Lokal Test için)
-```bash
-# .env dosyası oluştur (opsiyonel - sadece lokal test için)
-cp .env.example .env
-
-# Düzenle:
-NEYNAR_API_KEY=your_neynar_api_key_here
-```
-
-**Neynar API Key Al (ÜCRETSİZ):**
-1. https://neynar.com adresine git
-2. Kayıt ol
-3. Dashboard'dan API key al
-4. 200K compute units/ay ÜCRETSİZ! 🎉
-
-### 4. Lokal Test (Opsiyonel)
-```bash
-npm run dev
-# http://localhost:3000
-```
-
-### 5. GitHub'a Push
-```bash
-git init
-git add .
-git commit -m "Initial commit - CryptoMatch v3.0"
-git branch -M main
-git remote add origin https://github.com/KULLANICIADI/cryptomatch-v3.git
-git push -u origin main
-```
-
-### 6. Vercel Deploy
-1. https://vercel.com adresine git
-2. "New Project" → GitHub repo'nu seç
-3. **Environment Variables ekle:**
-   - `NEYNAR_API_KEY` = your_key
-4. Deploy!
-5. 2 dakikada hazır! 🚀
-
----
-
-## 🎯 KULLANIM
-
-### Celebrity Matching:
-1. "Find Celebrity Match" butonuna tıkla
-2. AI senin:
-   - Portfolio'nu analiz eder (7 blockchain)
-   - Cast'lerini okur (son 25 cast)
-   - İlgi alanlarını çıkarır
-   - En uygun celebrity'yi bulur
-3. Sonuç:
-   - Match celebrity
-   - Compatibility score (85-99%)
-   - Why compatible
-   - Personalized insights
-   - Portfolio summary
-   - Interest tags
-
-### User Matching:
-1. "Find Similar Users" butonuna tıkla
-2. AI benzer kullanıcıları bulur:
-   - Ortak ilgi alanları
-   - Ortak takip edilenler
-   - Portfolio benzerliği
-3. Top 5 match gösterir
-4. Warpcast'te bağlan!
-
----
-
-## 🏗️ PROJE YAPISI
-
-```
-cryptomatch-v3/
-├── app/
-│   ├── api/
-│   │   ├── match/
-│   │   │   └── route.ts          # Celebrity matching API
-│   │   └── user-match/
-│   │       └── route.ts          # User matching API (YENİ!)
-│   ├── layout.tsx
-│   ├── page.tsx                  # Ana sayfa
-│   └── globals.css
-├── components/
-│   ├── HomeScreen.tsx            # Ana ekran (güncellenmiş)
-│   ├── LoadingScreen.tsx         # Loading animasyonu
-│   ├── ResultScreen.tsx          # Celebrity match sonucu
-│   └── UserMatchScreen.tsx       # User match sonucu (YENİ!)
-├── lib/
-│   ├── celebrities.ts            # 100+ celebrity database (YENİ!)
-│   ├── neynar.ts                 # Farcaster API (YENİ!)
-│   ├── content-analysis.ts       # NLP & ilgi alanı (YENİ!)
-│   └── blockchain.ts             # Portfolio analizi
-├── package.json
-├── tsconfig.json
-├── next.config.js
-├── tailwind.config.js
-├── .gitignore
-├── .env.example
-└── README.md
-```
-
----
-
-## 🔧 TEKNOLOJİLER
+## 🛠️ Tech Stack
 
 - **Next.js 14** - React framework
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Styling
-- **Farcaster Frame SDK** - Farcaster integration
-- **Neynar API** - Farcaster data (ÜCRETSİZ 200K/ay)
-- **dRPC** - Blockchain RPC (ÜCRETSİZ)
-- **CoinGecko API** - Crypto fiyatları (ÜCRETSİZ)
+- **Farcaster Frame SDK** - Mini App integration
+- **Vercel** - Deployment
 
-**TOPLAM MALIYET: $0/ay** 🎉
+## 📦 Installation
 
----
+1. Clone the repository:
+\`\`\`bash
+git clone <your-repo-url>
+cd cryptomatch-nextjs
+\`\`\`
 
-## 🎨 100+ CELEBRITY DATABASE
+2. Install dependencies:
+\`\`\`bash
+npm install
+# or
+yarn install
+\`\`\`
 
-### Kategoriler:
-- **Crypto**: Vitalik, CZ, Hayden, Balaji, Andre, Stani, Jesse, Dankrad, Cobie, Ryan, David, Nic, Andreas, Laura, Raoul, Justin, CZ Binance, Tim Draper, Mike Novogratz, Winklevoss Twins
-- **Tech**: Elon Musk, Jack Dorsey, Sam Altman, Naval
-- **Music**: Steve Aoki, Snoop Dogg, Deadmau5, Grimes
-- **Sports**: Tom Brady, Serena Williams, Odell Beckham Jr, Messi
-- **Art**: Beeple, Pak, XCOPY, FEWOCiOUS
-- **Business**: Cathie Wood, Mark Cuban, Chamath, Gary Vee, Logan Paul, MrBeast, Paris Hilton, Meltem
-- **Gaming**: Kieran Warwick, Yat Siu
-- **ve daha fazlası...**
+3. Copy environment variables:
+\`\`\`bash
+cp .env.example .env.local
+\`\`\`
 
----
+4. Update \`.env.local\`:
+\`\`\`
+NEXT_PUBLIC_URL=http://localhost:3000
+\`\`\`
 
-## 🧠 AKILLI SKORLAMA SİSTEMİ
+5. Run development server:
+\`\`\`bash
+npm run dev
+# or
+yarn dev
+\`\`\`
 
-### Portfolio Score (30 puan):
-- ETH tutma: +8
-- WBTC tutma: +8
-- L2 kullanımı: +7
-- DeFi tokens: +8
-- Multi-chain (3+): +8
-- Portfolio > $10K: +5
+6. Open [http://localhost:3000](http://localhost:3000)
 
-### Content Score (25 puan):
-- Ortak ilgi alanları: +5 per topic
-- NFT mention'ları: +10
-- Crypto project mention: +3 per project
-- Pozitif sentiment: +5
-- Kategori uyumu: +5
+## 🚢 Deployment to Vercel
 
-### Social Score (20 puan):
-- Ortak takip edilenler
-- Channel membership
-- Engagement patterns
+1. Push code to GitHub
 
-### NFT Score (15 puan):
-- NFT koleksiyonu sahipliği
-- NFT mention'ları
-- Art interest
+2. Import project in Vercel
 
-### Vibe Score (10 puan):
-- Sentiment analizi
-- Posting frequency
-- Community engagement
-- FID-based variety
+3. Set environment variable:
+   - \`NEXT_PUBLIC_URL\` = your production URL
 
-**TOPLAM: 100 puan**
+4. Deploy!
 
----
+5. Update Farcaster manifest with your production URL
 
-## 📊 İLGİ KATEGORİLERİ (30+)
+## 📱 Farcaster Integration
 
-### Crypto & Tech:
-- defi, nft, gaming, ai, blockchain
+### Manifest File
 
-### Lifestyle:
-- fitness, food, travel, photography, music
+The app serves a Farcaster manifest at \`/.well-known/farcaster.json\`
 
-### Hobbies:
-- reading, sports, nature, art, fishing
+Update the \`accountAssociation\` values in:
+\`app/.well-known/farcaster.json/route.ts\`
 
-### Professional:
-- entrepreneurship, investing, technology, design
+Generate your own at: https://warpcast.com/~/developers/mini-apps/manifest
 
-### Social:
-- memes, community, learning
+### Frame Metadata
 
-### Specific:
-- anime, cars, fashion, pets
+Frame metadata is configured in \`app/layout.tsx\`
 
----
+### SDK Integration
 
-## 🐛 SORUN GİDERME
+The Farcaster SDK is initialized in \`app/page.tsx\`:
 
-### "Portfolio based: false"?
-- Kullanıcının verified wallet yok
-- Fallback: Content-based match
+\`\`\`typescript
+import sdk from '@farcaster/frame-sdk'
 
-### Match çok uzun sürüyor?
-- Normal: 2-3 saniye
-- Portfolio analizi: +2 saniye
-- Content analizi: +1 saniye
+// Initialize
+const ctx = await sdk.context
 
-### "User matching requires Neynar API key"?
-- Neynar API key eksik
-- Vercel'de Environment Variable ekle
+// Notify ready (CRITICAL!)
+sdk.actions.ready()
+\`\`\`
 
-### Celebrity hep aynı?
-- Normal değil!
-- Portfolio + Content farklıysa = farklı match
+## 🎨 Customization
 
----
+### Colors
 
-## 🔮 GELECEK ÖZELLİKLER (Planlanan)
+Edit \`tailwind.config.js\`:
 
-- [ ] OpenRank entegrasyonu (gerçek user matching)
-- [ ] NFT koleksiyonu analizi
-- [ ] Advanced social graph
-- [ ] Match history
-- [ ] Friend suggestions
-- [ ] Group matching
-- [ ] Channel-based matching
-- [ ] Custom celebrity ekleme
+\`\`\`javascript
+colors: {
+  primary: '#667eea',
+  secondary: '#764ba2',
+  accent: '#FFD93D',
+}
+\`\`\`
 
----
+### Match Algorithm
 
-## 💡 İPUÇLARI
+Edit \`app/api/match/route.ts\` to customize matching logic
 
-### Daha İyi Match için:
-1. **Cast at!** - Daha fazla cast = daha iyi analiz
-2. **İlgi alanlarını paylaş** - NFT, DeFi, müzik, spor vb.
-3. **Wallet verify et** - Portfolio analizi için
-4. **Channel'lara katıl** - Sosyal skor için
-5. **Takip et!** - Ortak takip = daha iyi user match
+### Images
 
-### API Key Güvenliği:
-- ✅ Vercel Environment Variables kullan
-- ✅ .gitignore zaten .env'i engelliyor
-- ❌ ASLA API key'i koda yapıştırma
-- ❌ ASLA .env'i GitHub'a push etme
+Replace images in \`public/images/\`:
+- \`icon.png\` - App icon (200x200)
+- \`preview.png\` - Preview image (1200x630)
+- \`splash.png\` - Splash screen (200x200)
 
----
+## 📄 File Structure
 
-## 📞 DESTEK
+\`\`\`
+cryptomatch-nextjs/
+├── app/
+│   ├── .well-known/
+│   │   └── farcaster.json/
+│   │       └── route.ts          # Farcaster manifest
+│   ├── api/
+│   │   └── match/
+│   │       └── route.ts          # Match API
+│   ├── layout.tsx                # Root layout
+│   ├── page.tsx                  # Main app
+│   └── globals.css               # Global styles
+├── components/
+│   ├── HomeScreen.tsx            # Home screen
+│   ├── ResultScreen.tsx          # Result screen
+│   └── LoadingScreen.tsx         # Loading screen
+├── public/
+│   └── images/                   # Static assets
+├── package.json
+├── tsconfig.json
+├── tailwind.config.js
+└── next.config.js
+\`\`\`
 
-Sorular için:
-- GitHub Issues
-- Farcaster: @yourhandle
-- Twitter: @yourhandle
+## 🐛 Troubleshooting
 
----
+### "Failed to load" error
 
-## 📄 LİSANS
+Make sure you call \`sdk.actions.ready()\` after SDK initialization
 
-MIT License - Kullanmakta özgürsünüz!
+### Developer mode warning
 
----
+This is normal during development. It will disappear in production.
 
-## 🎉 TEŞEKKÜRLER
+### Images not loading
 
-- **Neynar** - Farcaster API
-- **Farcaster** - Protocol
-- **dRPC** - Blockchain RPC
-- **CoinGecko** - Price data
-- **Vercel** - Hosting
+Check that images exist in \`public/images/\` and URLs are correct
 
----
+## 📚 Resources
 
-**Made with 💜 for Farcaster**
+- [Farcaster Mini Apps Docs](https://miniapps.farcaster.xyz)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Vercel Deployment](https://vercel.com/docs)
 
-**V3.0 - AI-Powered Matching** 🚀
+## 💜 Credits
 
-## 🔥 ÖZELLİKLER ÖZET
+Built with love for the Farcaster community by [@wonra16](https://warpcast.com/wonra16)
 
-| Özellik | V2.0 | V3.0 |
-|---------|------|------|
-| Celebrity Count | 15 | 100+ |
-| Portfolio Analysis | ✅ | ✅ |
-| Content Analysis | ❌ | ✅ NLP |
-| User Matching | ❌ | ✅ |
-| Interest Categories | ❌ | 30+ |
-| Sentiment Analysis | ❌ | ✅ |
-| NFT Detection | ❌ | ✅ |
-| Social Graph | ❌ | ✅ |
+## 📝 License
 
----
-
-**Uçmaya hazır! 🚀**
+MIT
