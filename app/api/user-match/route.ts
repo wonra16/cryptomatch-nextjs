@@ -227,10 +227,10 @@ export async function POST(request: NextRequest) {
 
     if (matches.length === 0) {
       return NextResponse.json({
-        success: true,
+        success: false,  // ✅ DÜZELTILDI: Boş matches = başarısız
         matches: [],
-        message: 'No matches found yet. Keep building your presence on Farcaster! 🚀'
-      })
+        error: 'No matches found yet. Keep building your presence on Farcaster! 🚀'
+      }, { status: 404 })
     }
 
     // Get top match

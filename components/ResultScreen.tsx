@@ -1,15 +1,45 @@
 interface ResultScreenProps {
-  result: any
-  context: any
-  onShare: () => void
-  onTryAgain: () => void
+  data: any  // ← Changed from result to data (matching page.tsx)
+  onBack: () => void  // ← Changed from onBack/onBack to onBack
 }
 
-export default function ResultScreen({ result, context, onShare, onTryAgain }: ResultScreenProps) {
-  const { compatibility } = result
+export default function ResultScreen({ data, onBack }: ResultScreenProps) {
+  // Defensive programming - check if data exists
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold mb-4">No Match Data</h2>
+          <p className="text-white/70 mb-8">Something went wrong loading your match</p>
+          <button
+            onClick={onBack}
+            className="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl font-bold hover:scale-105 transition"
+          >
+            Back Home
+          </button>
+        </div>
+      </div>
+    )
+  }
 
-  const userAvatar = context?.user?.pfpUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user'
-  const userName = context?.user?.displayName || context?.user?.username || 'You'
+  // Extract compatibility with default values
+  const compatibility = data || {}
+  const {
+    score = 0,
+    match_name = 'Unknown',
+    match_avatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=default',
+    why_compatible = 'We found something special about you!',
+    traits_in_common = [],
+    fun_fact = '',
+    personalized_insight = '',
+    content_insight = null,
+    portfolio_summary = null,
+    content_summary = null,
+  } = compatibility
+
+  const userAvatar = 'https://api.dicebear.com/7.x/avataaars/svg?seed=user'
+  const userName = 'You'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white relative overflow-hidden">
@@ -68,7 +98,7 @@ export default function ResultScreen({ result, context, onShare, onTryAgain }: R
                   </div>
                   <div className="bg-gradient-to-r from-yellow-400 to-orange-500 px-6 py-2.5 rounded-2xl shadow-xl border-2 border-white/40">
                     <span className="text-3xl font-black text-white drop-shadow-lg">
-                      {compatibility.score}%
+                      {score}%
                     </span>
                   </div>
                 </div>
@@ -78,16 +108,16 @@ export default function ResultScreen({ result, context, onShare, onTryAgain }: R
                   <div className="absolute -inset-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full opacity-75 blur-xl animate-pulse delay-500"></div>
                   <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-white/40 shadow-2xl ring-4 ring-yellow-500/30">
                     <img
-                      src={compatibility.match_avatar}
-                      alt={compatibility.match_name}
+                      src={match_avatar}
+                      alt={match_name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        e.currentTarget.src = 'https://api.dicebear.com/7.x/bottts/svg?seed=' + compatibility.match_name
+                        e.currentTarget.src = 'https://api.dicebear.com/7.x/bottts/svg?seed=' + match_name
                       }}
                     />
                   </div>
                   <p className="text-sm font-bold mt-3 text-center text-white/90 bg-white/10 px-3 py-1 rounded-full backdrop-blur-xl">
-                    {compatibility.match_name.split(' ')[0]}
+                    {match_name.split(' ')[0]}
                   </p>
                 </div>
               </div>
@@ -95,12 +125,12 @@ export default function ResultScreen({ result, context, onShare, onTryAgain }: R
               {/* Match Name */}
               <div className="text-center">
                 <h2 className="text-3xl md:text-4xl font-black mb-2 bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 via-orange-300 to-pink-300">
-                  {compatibility.match_name}
+                  {match_name}
                 </h2>
-                {compatibility.personalized_insight && (
+                {personalized_insight && (
                   <p className="text-yellow-300 font-bold text-sm md:text-base animate-pulse flex items-center justify-center gap-2">
                     <span>✨</span>
-                    <span>{compatibility.personalized_insight}</span>
+                    <span>{personalized_insight}</span>
                   </p>
                 )}
               </div>
@@ -116,7 +146,7 @@ export default function ResultScreen({ result, context, onShare, onTryAgain }: R
                   <span>Why You Match</span>
                 </h3>
                 <p className="text-white/90 text-sm md:text-base leading-relaxed">
-                  {compatibility.why_compatible}
+                  {why_compatible}
                 </p>
               </div>
 
@@ -127,7 +157,7 @@ export default function ResultScreen({ result, context, onShare, onTryAgain }: R
                   <span>Traits in Common</span>
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {compatibility.traits_in_common.map((trait: string, idx: number) => (
+                  {traits_in_common.map((trait: string, idx: number) => (
                     <div
                       key={idx}
                       className="bg-gradient-to-br from-white/15 to-white/5 backdrop-blur-sm px-4 py-3 rounded-xl text-xs md:text-sm font-bold text-center border border-white/10 hover:scale-105 transition-all duration-200 hover:from-white/20 hover:to-white/10"
@@ -145,12 +175,12 @@ export default function ResultScreen({ result, context, onShare, onTryAgain }: R
                   <span>Fun Fact</span>
                 </h3>
                 <p className="text-white/95 text-sm md:text-base leading-relaxed">
-                  {compatibility.fun_fact}
+                  {fun_fact}
                 </p>
               </div>
 
               {/* Portfolio-Based Match Badge */}
-              {compatibility.portfolio_based && compatibility.portfolio_summary && (
+              {compatibility.portfolio_based && portfolio_summary && (
                 <div className="bg-gradient-to-br from-green-500/15 to-emerald-500/15 backdrop-blur-sm rounded-2xl p-5 border border-green-400/30">
                   <div className="flex items-start gap-3 mb-3">
                     <span className="text-2xl">💎</span>
@@ -168,25 +198,25 @@ export default function ResultScreen({ result, context, onShare, onTryAgain }: R
                     <div className="bg-white/5 rounded-xl p-3">
                       <p className="text-xs text-white/60 mb-1">Portfolio Value</p>
                       <p className="text-lg font-bold text-green-300">
-                        ${compatibility.portfolio_summary.total_value}
+                        ${portfolio_summary.total_value}
                       </p>
                     </div>
                     <div className="bg-white/5 rounded-xl p-3">
                       <p className="text-xs text-white/60 mb-1">Active Chains</p>
                       <p className="text-lg font-bold text-green-300">
-                        {compatibility.portfolio_summary.active_chains}/7
+                        {portfolio_summary.active_chains}/7
                       </p>
                     </div>
                   </div>
 
-                  {compatibility.portfolio_summary.is_multi_chain && (
+                  {portfolio_summary.is_multi_chain && (
                     <div className="mt-3 flex items-center gap-2 bg-purple-500/20 px-3 py-2 rounded-lg">
                       <span className="text-lg">🌐</span>
                       <span className="text-xs font-bold text-purple-200">Multi-Chain Pro</span>
                     </div>
                   )}
                   
-                  {compatibility.portfolio_summary.is_defi_user && (
+                  {portfolio_summary.is_defi_user && (
                     <div className="mt-2 flex items-center gap-2 bg-blue-500/20 px-3 py-2 rounded-lg">
                       <span className="text-lg">🏦</span>
                       <span className="text-xs font-bold text-blue-200">DeFi Power User</span>
@@ -200,7 +230,7 @@ export default function ResultScreen({ result, context, onShare, onTryAgain }: R
           {/* Action Buttons */}
           <div className="space-y-3">
             <button
-              onClick={onShare}
+              onClick={onBack}
               className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white py-5 px-6 rounded-2xl text-lg md:text-xl font-black 
                        hover:scale-105 active:scale-95 transition-all duration-300
                        shadow-2xl hover:shadow-pink-500/50 flex items-center justify-center gap-3 border-2 border-white/20
@@ -214,7 +244,7 @@ export default function ResultScreen({ result, context, onShare, onTryAgain }: R
             </button>
             
             <button
-              onClick={onTryAgain}
+              onClick={onBack}
               className="w-full bg-white/10 backdrop-blur-xl text-white py-4 px-6 rounded-2xl text-base md:text-lg font-bold 
                        hover:scale-105 active:scale-95 transition-all duration-300
                        border-2 border-white/30 flex items-center justify-center gap-2 hover:bg-white/15"

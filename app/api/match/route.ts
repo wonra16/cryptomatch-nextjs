@@ -215,6 +215,20 @@ export async function POST(request: NextRequest) {
     const body: MatchRequest = await request.json()
     const { fid, username, bio, walletAddress } = body
 
+    console.log('🔍 Match API called for FID:', fid)
+    console.log('📊 API Status:', {
+      neynar: isNeynarConfigured(),
+      alchemy: isAlchemyConfigured()
+    })
+
+    // Warning if APIs not configured (but continue anyway)
+    if (!isNeynarConfigured()) {
+      console.warn('⚠️ Neynar API not configured - content analysis will be skipped')
+    }
+    if (!isAlchemyConfigured()) {
+      console.warn('⚠️ Alchemy API not configured - NFT analysis will be skipped')
+    }
+
     let portfolioData = null
     let portfolioAnalysis = null
     let nftAnalysis = null
