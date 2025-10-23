@@ -48,17 +48,32 @@ export async function POST(request: NextRequest) {
     console.log('🔍 custody_address:', user.custody_address)
     console.log('🔍 verified_addresses:', JSON.stringify(user.verified_addresses, null, 2))
 
-    // Extract wallet - try multiple locations
-    const wallet = 
-      user.verified_addresses?.eth_addresses?.[0] ||
-      user.custody_address ||
-      null
-
-    console.log('💰 Extracted wallet:', wallet || 'NONE')
+    // Extract ALL wallets - not just primary!
+    const ethWallets = user.verified_addresses?.eth_addresses || []
+    const solWallets = user.verified_addresses?.sol_addresses || []
+    const custodyWallet = user.custody_address
+    
+    // Combine all Ethereum wallets (verified + custody)
+    const allEthWallets = [...new Set([
+      ...ethWallets,
+      ...(custodyWallet ? [custodyWallet] : [])
+    ])]
+    
+    // Primary wallet (for backward compatibility)
+    const primaryWallet = allEthWallets[0] || null
+    
+    console.log('💰 ALL ETH wallets:', allEthWallets)
+    console.log('💰 ALL SOL wallets:', solWallets)
+    console.log('💰 Primary wallet:', primaryWallet)
 
     return NextResponse.json({
       success: true,
-      wallet,
+      wallet: primaryWallet,  // Primary for backward compatibility
+      wallets: {
+        eth: allEthWallets,
+        sol: solWallets,
+        primary: primaryWallet
+      },
       user: {
         fid: user.fid,
         username: user.username,

@@ -48,60 +48,8 @@ export default function Page() {
       return
     }
 
-    // BYPASS MODAL - START DIRECTLY!
-    setLoading(true)
-    setScreen('loading')
-
-    try {
-      // Fetch wallet via internal API (no modal!)
-      console.log('🔍 Auto-fetching wallet for FID:', context.user.fid)
-      
-      const walletRes = await fetch('/api/get-wallet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fid: context.user.fid })
-      })
-
-      let walletAddress = null
-      
-      if (walletRes.ok) {
-        const walletData = await walletRes.json()
-        if (walletData.success && walletData.wallet) {
-          walletAddress = walletData.wallet
-          console.log('💰 Auto-detected wallet:', walletAddress)
-        } else {
-          console.log('⚠️ No wallet found, continuing without portfolio')
-        }
-      }
-
-      // Perform match with or without wallet
-      console.log('🎯 Starting match analysis...')
-      
-      const res = await fetch('/api/match', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fid: context.user.fid,
-          username: context.user.username || `fid${context.user.fid}`,
-          walletAddress: walletAddress
-        })
-      })
-
-      const data = await res.json()
-      
-      if (data.success) {
-        setMatchData(data.compatibility)
-        setScreen('result')
-      } else {
-        throw new Error(data.error || 'Match failed')
-      }
-    } catch (err: any) {
-      console.error('❌ Match error:', err)
-      setError(err.message)
-      setScreen('error')
-    } finally {
-      setLoading(false)
-    }
+    // Show wallet modal FIRST (user can skip or add manual wallet)
+    setShowWalletModal(true)
   }
 
   const handleContinueMatch = async (manualWallet?: string) => {
@@ -248,23 +196,25 @@ export default function Page() {
       
       console.log('📦 Wallet API response:', walletData)
 
-      if (!walletData.success || !walletData.wallet) {
+      if (!walletData.success || (!walletData.wallet && (!walletData.wallets || walletData.wallets.eth.length === 0))) {
         setError('No wallet found! Connect your Ethereum wallet on Farcaster:\n\nSettings → Verified Addresses → Connect Wallet')
         setScreen('error')
         setLoading(false)
         return
       }
 
-      const walletAddress = walletData.wallet
-      console.log('💰 Portfolio wallet:', walletAddress)
+      // Get ALL Ethereum wallets!
+      const allWallets = walletData.wallets?.eth || [walletData.wallet]
+      console.log('💰 ALL Portfolio wallets:', allWallets)
+      console.log('💰 Total wallets to analyze:', allWallets.length)
 
-      console.log('💰 Analyzing portfolio for:', walletAddress)
+      console.log('💰 Analyzing MULTI-WALLET portfolio...')
       
       const res = await fetch('/api/portfolio/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          address: walletAddress,  // ← FIXED! 'address' key!
+          addresses: allWallets,  // ← Send ALL wallets!
           fid: context.user.fid
         })
       })

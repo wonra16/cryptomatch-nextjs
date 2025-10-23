@@ -46,8 +46,8 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
   })
   
   // CHECK: If following count is too low!
-  if (userFollowing.length < 10) {
-    console.log('⚠️ User follows too few people!')
+  if (userFollowing.length < 5) {  // ← Lowered from 10 to 5!
+    console.log('⚠️ User follows too few people! (< 5)')
     return []  // Return empty - will show friendly error message
   }
   
@@ -69,8 +69,8 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
   // Strategy: Find users who follow similar people
   const potentialMatches: UserMatchResult[] = []
   
-  // Get a sample of users from following list - INCREASED TO 100!
-  const sampleFollowing = userFollowing.slice(0, 100) // ← 50 → 100!
+  // Get a sample of users from following list - INCREASED TO 150!
+  const sampleFollowing = userFollowing.slice(0, 150) // ← 100 → 150!
   console.log(`🎯 Analyzing ${sampleFollowing.length} users from following list`)
   
   for (const followedFid of sampleFollowing) {
@@ -101,8 +101,8 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
       
       console.log(`🔢 FID ${followedFid} (@${followedProfile.username}): score=${compatibilityScore}, content=${contentSimilarity}, social=${socialScore}`)
       
-      // Only add if score > 10 (ULTRA LOW threshold for maximum matches!)
-      if (compatibilityScore > 10) {
+      // Only add if score > 5 (ULTRA ULTRA LOW threshold!)
+      if (compatibilityScore > 5) {
         const commonInterests = userContentProfile.topicsDetected.filter((t: string) =>
           followedContentProfile.topicsDetected.includes(t)
         )
@@ -252,7 +252,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: false,
         matches: [],
-        error: 'No matches found yet! 😔\n\nTips:\n• Follow 50+ people on Farcaster\n• Engage with crypto/NFT content\n• Build your on-chain presence\n• Try again after following more users! 🚀'
+        error: 'No matches found yet! 😔\n\nTips to find matches:\n• Follow 20+ active users on Farcaster\n• Engage with crypto/NFT/tech content\n• Build your on-chain presence\n• Cast regularly about your interests\n• Try again after growing your network! 🚀'
       }, { status: 404 })
     }
 

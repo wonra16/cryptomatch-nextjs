@@ -24,21 +24,78 @@ const funnyRoasts = [
 ]
 
 interface AnalyzeRequest {
-  address: string
+  address?: string  // Single wallet (backward compat)
+  addresses?: string[]  // Multiple wallets (NEW!)
   fid?: number
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: AnalyzeRequest = await request.json()
-    const { address } = body
+    const { address, addresses, fid } = body
 
-    if (!address) {
-      return NextResponse.json({ error: 'Address is required' }, { status: 400 })
+    // Support both single and multiple addresses
+    let walletsToAnalyze: string[] = []
+    
+    if (addresses && addresses.length > 0) {
+      // Multi-wallet mode
+      walletsToAnalyze = addresses
+      console.log('💰 Analyzing MULTIPLE wallets:', walletsToAnalyze.length)
+    } else if (address) {
+      // Single wallet mode (backward compat)
+      walletsToAnalyze = [address]
+      console.log('💰 Analyzing SINGLE wallet:', address)
+    } else {
+      return NextResponse.json({ error: 'Address or addresses required' }, { status: 400 })
     }
 
-    // Analyze wallet across ALL chains!
-    const analysis = await analyzeWallet(address)
+    // Analyze ALL wallets and combine results!
+    let combinedAnalysis: any = {
+      address: walletsToAnalyze[0],  // Primary address
+      total_value_usd: '0',
+      total_meme_coins: 0,
+      chains: {},
+      all_tokens: [],
+      analyzed_at: new Date().toISOString()
+    }
+    
+    for (const wallet of walletsToAnalyze) {
+      console.log(`🔍 Analyzing wallet: ${wallet}`)
+      const analysis = await analyzeWallet(wallet)
+      
+      // Combine values
+      const currentTotal = parseFloat(combinedAnalysis.total_value_usd || '0')
+      const newTotal = parseFloat(analysis.total_value_usd || '0')
+      combinedAnalysis.total_value_usd = (currentTotal + newTotal).toFixed(2)
+      
+      // Combine meme coins
+      combinedAnalysis.total_meme_coins += (analysis.total_meme_coins || 0)
+      
+      // Combine chains
+      for (const [chainKey, chainData] of Object.entries(analysis.chains)) {
+        if (!combinedAnalysis.chains[chainKey]) {
+          combinedAnalysis.chains[chainKey] = chainData
+        } else {
+          // Merge chain data
+          const existing = combinedAnalysis.chains[chainKey]
+          const newData: any = chainData
+          
+          existing.native_balance = (parseFloat(existing.native_balance) + parseFloat(newData.native_balance)).toFixed(6)
+          existing.native_value_usd = (parseFloat(existing.native_value_usd) + parseFloat(newData.native_value_usd)).toFixed(2)
+          existing.tokens = [...existing.tokens, ...newData.tokens]
+          existing.meme_coins = (existing.meme_coins || 0) + (newData.meme_coins || 0)
+        }
+      }
+      
+      // Combine all tokens
+      combinedAnalysis.all_tokens = [...combinedAnalysis.all_tokens, ...analysis.all_tokens]
+    }
+    
+    console.log(`✅ Combined analysis complete! Total: $${combinedAnalysis.total_value_usd}`)
+    console.log(`✅ Total wallets analyzed: ${walletsToAnalyze.length}`)
+    console.log(`✅ Total meme coins: ${combinedAnalysis.total_meme_coins}`)
+    
+    const analysis = combinedAnalysis
 
     // Generate personalized roast
     const roastIndex = Math.abs(parseInt(address.slice(-2), 16) % funnyRoasts.length)

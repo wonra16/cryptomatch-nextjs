@@ -22,7 +22,11 @@ export default function HomeScreen({ context, loading, onFindMatch, onUserMatch,
           {/* Hero Section */}
           <div className="text-center mb-12 relative">
             <div className="relative inline-block mb-6">
-              <div className="text-7xl md:text-8xl animate-bounce">💕</div>
+              <img 
+                src="/images/icon-512.png" 
+                alt="CryptoMatch" 
+                className="w-24 h-24 md:w-32 md:h-32 drop-shadow-2xl animate-float"
+              />
               <div className="absolute -top-4 -right-4 text-4xl animate-ping">✨</div>
               <div className="absolute -bottom-4 -left-4 text-3xl animate-pulse delay-500">🔥</div>
             </div>
