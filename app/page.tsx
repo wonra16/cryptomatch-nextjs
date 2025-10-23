@@ -5,22 +5,19 @@ import sdk from '@farcaster/frame-sdk'
 import HomeScreen from '@/components/HomeScreen'
 import LoadingScreen from '@/components/LoadingScreen'
 import ResultScreen from '@/components/ResultScreen'
-import UserMatchScreen from '@/components/UserMatchScreen'
-import PortfolioScreen from '@/components/PortfolioScreen_New'
+import VibeCheckScreen from '@/components/VibeCheckScreen'
 import WalletInfoModal from '@/components/WalletInfoModal'
 
-type Screen = 'home' | 'loading' | 'result' | 'user-match' | 'portfolio' | 'error'
+type Screen = 'home' | 'loading' | 'result' | 'vibe-check' | 'error'
 
 export default function Page() {
   const [screen, setScreen] = useState<Screen>('home')
   const [context, setContext] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [matchData, setMatchData] = useState<any>(null)
-  const [userMatchData, setUserMatchData] = useState<any>(null)
-  const [portfolioData, setPortfolioData] = useState<any>(null)
+  const [vibeCheckData, setVibeCheckData] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
   const [showWalletModal, setShowWalletModal] = useState(false)
-  const [showUserMatchWalletModal, setShowUserMatchWalletModal] = useState(false)  // ← NEW!
 
   useEffect(() => {
     const initSDK = async () => {
@@ -42,6 +39,9 @@ export default function Page() {
     initSDK()
   }, [])
 
+  // ========================================
+  // CELEBRITY MATCH
+  // ========================================
   const handleFindMatch = async () => {
     if (!context?.user?.fid) {
       setError('Please open in Warpcast')
@@ -63,33 +63,8 @@ export default function Page() {
       return
     }
 
-    // PRIORITY 2: Internal API ile wallet çek (GUARANTEED!)
-    try {
-      console.log('🔍 Fetching wallet via API for FID:', context.user.fid)
-      
-      const walletRes = await fetch('/api/get-wallet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fid: context.user.fid })
-      })
-
-      if (walletRes.ok) {
-        const walletData = await walletRes.json()
-        
-        console.log('📦 Wallet API response:', walletData)
-
-        if (walletData.success && walletData.wallet) {
-          console.log('💰 Wallet found:', walletData.wallet)
-          await performMatch(walletData.wallet)
-          return
-        }
-      }
-    } catch (error) {
-      console.error('❌ Wallet API error:', error)
-    }
-
     // NO WALLET - Continue without portfolio
-    console.log('⚠️ No wallet found, continuing without portfolio analysis')
+    console.log('⚠️ No wallet, continuing without portfolio analysis')
     await performMatch(null)
   }
 
@@ -127,153 +102,26 @@ export default function Page() {
     }
   }
 
-  const handleUserMatch = async () => {
+  // ========================================
+  // VIBE CHECK - NEW!
+  // ========================================
+  const handleVibeCheck = async () => {
     if (!context?.user?.fid) {
       setError('Please open in Warpcast')
       setScreen('error')
       return
     }
 
-    // Show wallet modal FIRST (user can skip or add manual wallet)
-    setShowUserMatchWalletModal(true)
-  }
-
-  const handleUserMatchContinue = async (manualWallet?: string) => {
-    setShowUserMatchWalletModal(false)
-
-    if (!context?.user?.fid) {
-      setError('Please open in Warpcast')
-      setScreen('error')
-      return
-    }
+    console.log('🎯 Starting Vibe Check for FID:', context.user.fid)
 
     setLoading(true)
     setScreen('loading')
 
     try {
-      console.log('👥 Finding similar users for FID:', context.user.fid)
-      
-      // If manual wallet provided, use it
-      if (manualWallet) {
-        console.log('💰 Using manual wallet for user match:', manualWallet)
-      }
-      
-      const res = await fetch('/api/user-match', {
+      const res = await fetch('/api/vibe-check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fid: context.user.fid,
-          username: context.user.username || `fid${context.user.fid}`,
-          walletAddress: manualWallet  // Optional wallet
-        })
-      })
-
-      console.log('📡 User match response status:', res.status)
-      const data = await res.json()
-      console.log('📦 User match data:', data)
-      
-      if (data.success) {
-        setUserMatchData(data)
-        setScreen('user-match')
-      } else {
-        // Better error message
-        throw new Error(data.error || 'Could not find similar users. Try following more people on Farcaster!')
-      }
-    } catch (err: any) {
-      console.error('❌ User match error:', err)
-      setError(err.message)
-      setScreen('error')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handlePortfolio = async () => {
-    if (!context?.user?.fid) {
-      setError('Please open in Warpcast')
-      setScreen('error')
-      return
-    }
-
-    // ✅ DON'T analyze immediately! Just show portfolio screen!
-    // User will add wallet manually using "+ Wallet" button
-    
-    console.log('💰 Opening portfolio screen for FID:', context.user.fid)
-    
-    // Set empty portfolio data to show welcome screen
-    setPortfolioData({
-      success: true,
-      analysis: {
-        total_value_usd: '0',
-        total_meme_coins: 0,
-        chains: {},
-        all_tokens: [],
-        wallets_analyzed: []
-      }
-    })
-    
-    setScreen('portfolio')
-  }
-
-  const handleAddWallet = async (newWallet: string) => {
-    if (!context?.user?.fid) return
-
-    setLoading(true)
-    setScreen('loading')
-    
-    try {
-      let walletsToAnalyze: string[] = []
-      
-      // ✅ AUTO FETCH - Farcaster wallets!
-      if (newWallet === 'AUTO_FETCH') {
-        console.log('💰 Auto-fetching Farcaster wallets for FID:', context.user.fid)
-        
-        const walletRes = await fetch('/api/get-wallet', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fid: context.user.fid })
-        })
-
-        if (walletRes.ok) {
-          const walletData = await walletRes.json()
-          
-          if (walletData.success) {
-            if (walletData.wallets?.eth && Array.isArray(walletData.wallets.eth)) {
-              walletsToAnalyze = walletData.wallets.eth.filter((w: string) => w && w.length > 0)
-            } else if (walletData.wallet) {
-              walletsToAnalyze = [walletData.wallet]
-            }
-          }
-        }
-        
-        if (walletsToAnalyze.length === 0) {
-          setError('No Farcaster wallets found!\n\nConnect your wallet on Farcaster:\nSettings → Verified Addresses → Connect Wallet')
-          setScreen('error')
-          setLoading(false)
-          return
-        }
-        
-        console.log('💰 Found Farcaster wallets:', walletsToAnalyze)
-      }
-      // ✅ MANUAL WALLET - Single wallet!
-      else {
-        console.log('💰 Adding manual wallet:', newWallet)
-        
-        // If portfolio already has wallets, add to existing
-        if (portfolioData?.analysis?.wallets_analyzed && portfolioData.analysis.wallets_analyzed.length > 0) {
-          walletsToAnalyze = [...portfolioData.analysis.wallets_analyzed, newWallet]
-        } else {
-          walletsToAnalyze = [newWallet]
-        }
-      }
-      
-      console.log('💰 Analyzing wallets:', walletsToAnalyze)
-      
-      const res = await fetch('/api/portfolio/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          addresses: walletsToAnalyze,
           fid: context.user.fid
         })
       })
@@ -281,15 +129,15 @@ export default function Page() {
       const data = await res.json()
       
       if (data.success) {
-        setPortfolioData(data)
-        setScreen('portfolio')
-        console.log('✅ Portfolio analysis complete!')
+        console.log('✅ Vibe Check complete!', data.result)
+        setVibeCheckData(data.result)
+        setScreen('vibe-check')
       } else {
-        throw new Error(data.error || 'Failed to analyze portfolio')
+        throw new Error(data.error || 'Vibe check failed')
       }
     } catch (err: any) {
-      console.error('❌ Portfolio analysis error:', err)
-      setError(err.message || 'Failed to analyze portfolio')
+      console.error('❌ Vibe Check error:', err)
+      setError(err.message)
       setScreen('error')
     } finally {
       setLoading(false)
@@ -298,76 +146,85 @@ export default function Page() {
 
   const handleBack = () => {
     setScreen('home')
+    setMatchData(null)
+    setVibeCheckData(null)
     setError(null)
   }
 
+  // ========================================
+  // RENDER
+  // ========================================
   if (loading && !context) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/60">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (screen === 'home') {
+    return (
+      <>
+        <HomeScreen 
+          context={context}
+          loading={loading}
+          onFindMatch={handleFindMatch}
+          onVibeCheck={handleVibeCheck}
+        />
+        
+        {/* Wallet Modal for Celebrity Match */}
+        {showWalletModal && (
+          <WalletInfoModal
+            onClose={() => setShowWalletModal(false)}
+            onContinue={handleContinueMatch}
+          />
+        )}
+      </>
+    )
+  }
+
+  if (screen === 'loading') {
     return <LoadingScreen />
+  }
+
+  if (screen === 'result') {
+    return (
+      <ResultScreen 
+        compatibility={matchData}
+        onBack={handleBack}
+      />
+    )
+  }
+
+  if (screen === 'vibe-check') {
+    return (
+      <VibeCheckScreen 
+        result={vibeCheckData}
+        onBack={handleBack}
+      />
+    )
   }
 
   if (screen === 'error') {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white p-4">
-        <div className="max-w-md w-full bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white p-6 flex items-center justify-center">
+        <div className="text-center max-w-md">
           <div className="text-6xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold mb-4">Error</h2>
-          <p className="mb-6">{error}</p>
+          <h2 className="text-2xl font-bold mb-4">Oops!</h2>
+          <p className="text-white/70 mb-6 whitespace-pre-line">{error}</p>
           <button
             onClick={handleBack}
-            className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl font-semibold"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 rounded-xl font-bold hover:scale-105 transition"
           >
-            Back
+            ← Back to Home
           </button>
         </div>
       </div>
     )
   }
 
-  return (
-    <>
-      {/* Celebrity Match Wallet Modal */}
-      <WalletInfoModal
-        show={showWalletModal}
-        hasWallet={!!(context?.user?.custody_address || context?.user?.verified_addresses?.eth_addresses?.[0])}
-        onContinue={handleContinueMatch}
-        onCancel={() => setShowWalletModal(false)}
-      />
-
-      {/* User Match Wallet Modal */}
-      <WalletInfoModal
-        show={showUserMatchWalletModal}
-        hasWallet={!!(context?.user?.custody_address || context?.user?.verified_addresses?.eth_addresses?.[0])}
-        onContinue={handleUserMatchContinue}
-        onCancel={() => setShowUserMatchWalletModal(false)}
-      />
-
-      {screen === 'home' && (
-        <HomeScreen
-          context={context}
-          loading={false}
-          onFindMatch={handleFindMatch}
-          onUserMatch={handleUserMatch}
-          onPortfolio={handlePortfolio}
-        />
-      )}
-      
-      {screen === 'loading' && <LoadingScreen />}
-      
-      {screen === 'result' && matchData && (
-        <ResultScreen data={matchData} context={context} onBack={handleBack} />
-      )}
-      
-      {screen === 'user-match' && userMatchData && (
-        <UserMatchScreen data={userMatchData} onBack={handleBack} />
-      )}
-      
-      {screen === 'portfolio' && portfolioData && (
-        <PortfolioScreen 
-          data={portfolioData} 
-          onBack={handleBack}
-          onAddWallet={handleAddWallet}
-        />
-      )}
-    </>
-  )
+  return null
 }

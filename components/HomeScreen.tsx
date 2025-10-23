@@ -2,11 +2,10 @@ interface HomeScreenProps {
   context: any
   loading: boolean
   onFindMatch: () => void
-  onUserMatch: () => void
-  onPortfolio: () => void
+  onVibeCheck: () => void
 }
 
-export default function HomeScreen({ context, loading, onFindMatch, onUserMatch, onPortfolio }: HomeScreenProps) {
+export default function HomeScreen({ context, loading, onFindMatch, onVibeCheck }: HomeScreenProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white relative overflow-hidden">
       {/* Animated Background */}
@@ -59,7 +58,7 @@ export default function HomeScreen({ context, loading, onFindMatch, onUserMatch,
                 { num: '1', icon: '🤖', text: 'AI analyzes your Farcaster casts', color: 'from-purple-500 to-purple-600' },
                 { num: '2', icon: '🎨', text: 'Extracts your interests & hobbies', color: 'from-pink-500 to-pink-600' },
                 { num: '3', icon: '🌟', text: 'Matches with 100+ celebrities', color: 'from-yellow-500 to-orange-500' },
-                { num: '4', icon: '👥', text: 'Find similar Farcaster users!', color: 'from-green-500 to-emerald-500' },
+                { num: '4', icon: '🎯', text: 'Check your Farcaster vibe!', color: 'from-blue-500 to-cyan-500' },
               ].map((step) => (
                 <div key={step.num} className="flex items-center gap-4 group hover:scale-105 transition-transform duration-300">
                   <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center font-black text-xl flex-shrink-0 shadow-lg group-hover:shadow-2xl transition-shadow`}>
@@ -118,45 +117,26 @@ export default function HomeScreen({ context, loading, onFindMatch, onUserMatch,
               </span>
             </button>
 
-            {/* Secondary Buttons Grid */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Secondary Button: Vibe Check */}
+            <button
+              onClick={onVibeCheck}
+              disabled={loading}
+              className="w-full bg-gradient-to-br from-blue-600/90 to-cyan-600/90 backdrop-blur-xl text-white py-5 px-6 rounded-2xl text-lg md:text-xl font-bold 
+                       hover:scale-[1.02] active:scale-98 transition-all duration-200
+                       border border-blue-400/30 shadow-lg hover:shadow-cyan-500/30
+                       disabled:opacity-50 disabled:cursor-not-allowed relative group overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+              <span className="relative z-10 flex items-center justify-center gap-3">
+                <span className="text-3xl group-hover:scale-110 transition-transform">🎯</span>
+                <div className="text-left">
+                  <div className="font-extrabold">Farcaster Vibe Check</div>
+                  <div className="text-xs font-normal opacity-80">Discover your personality</div>
+                </div>
+              </span>
+              <span className="absolute top-2 right-2 text-[10px] bg-green-400 text-black px-2 py-1 rounded-md font-black">NEW</span>
+            </button>
               
-              {/* User Match */}
-              <button
-                onClick={onUserMatch}
-                disabled={loading}
-                className="bg-gradient-to-br from-purple-600/90 to-pink-600/90 backdrop-blur-xl text-white py-4 px-4 rounded-xl text-base md:text-lg font-bold 
-                         hover:scale-[1.02] active:scale-98 transition-all duration-200
-                         border border-purple-400/30 shadow-lg hover:shadow-purple-500/30
-                         disabled:opacity-50 disabled:cursor-not-allowed relative group overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                <span className="relative z-10 flex flex-col items-center justify-center gap-2">
-                  <span className="text-3xl group-hover:scale-110 transition-transform">👥</span>
-                  <span className="text-sm font-extrabold">Find Similar</span>
-                  <span className="text-xs font-bold opacity-80">Users</span>
-                </span>
-                <span className="absolute top-2 right-2 text-[10px] bg-green-400 text-black px-1.5 py-0.5 rounded-md font-black">NEW</span>
-              </button>
-
-              {/* Portfolio */}
-              <button
-                onClick={onPortfolio}
-                disabled={loading}
-                className="bg-gradient-to-br from-blue-600/90 to-cyan-600/90 backdrop-blur-xl text-white py-4 px-4 rounded-xl text-base md:text-lg font-bold 
-                         hover:scale-[1.02] active:scale-98 transition-all duration-200
-                         border border-blue-400/30 shadow-lg hover:shadow-cyan-500/30
-                         disabled:opacity-50 disabled:cursor-not-allowed relative group overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                <span className="relative z-10 flex flex-col items-center justify-center gap-2">
-                  <span className="text-3xl group-hover:scale-110 transition-transform">💰</span>
-                  <span className="text-sm font-extrabold">Analyze</span>
-                  <span className="text-xs font-bold opacity-80">Portfolio</span>
-                </span>
-              </button>
-              
-            </div>
           </div>
 
           {/* User Info */}
@@ -180,7 +160,7 @@ export default function HomeScreen({ context, loading, onFindMatch, onUserMatch,
             <span>•</span>
             <span>100+ Celebrities</span>
             <span>•</span>
-            <span>💜 User Matching</span>
+            <span>🎯 Vibe Check</span>
           </p>
         </div>
       </div>
