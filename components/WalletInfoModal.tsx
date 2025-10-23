@@ -1,21 +1,17 @@
 import { useState } from 'react'
 
 interface WalletInfoModalProps {
-  show: boolean
-  hasWallet: boolean
+  onClose: () => void
   onContinue: (manualWallet?: string) => void
-  onCancel: () => void
 }
 
-export default function WalletInfoModal({ show, hasWallet, onContinue, onCancel }: WalletInfoModalProps) {
+export default function WalletInfoModal({ onClose, onContinue }: WalletInfoModalProps) {
   const [manualInput, setManualInput] = useState(false)
   const [walletAddress, setWalletAddress] = useState('')
 
-  if (!show) return null
-
   const handleContinue = () => {
-    if (manualInput && walletAddress) {
-      onContinue(walletAddress)
+    if (manualInput && walletAddress.trim()) {
+      onContinue(walletAddress.trim())
     } else {
       onContinue()
     }
@@ -34,50 +30,21 @@ export default function WalletInfoModal({ show, hasWallet, onContinue, onCancel 
 
         {/* Title */}
         <h2 className="text-2xl font-black text-center mb-3 bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 to-orange-300">
-          {hasWallet ? 'Wallet Connected! ✨' : 'Connect Your Wallet 🔗'}
+          Add Wallet? (Optional)
         </h2>
 
         {/* Message */}
         <div className="bg-white/5 rounded-2xl p-4 mb-5 border border-white/10">
-          {hasWallet ? (
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">✅</span>
-                <div>
-                  <p className="text-white/90 text-sm font-bold mb-1">Wallet Found!</p>
-                  <p className="text-white/70 text-xs">We'll analyze your NFTs, tokens, and DeFi activity for more accurate matching!</p>
-                </div>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">💡</span>
+              <div>
+                <p className="text-white/90 text-sm font-bold mb-1">Bonus Matching!</p>
+                <p className="text-white/70 text-xs">Add your wallet to analyze NFTs & tokens for more accurate celebrity matching!</p>
               </div>
             </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">💡</span>
-                <div>
-                  <p className="text-white/90 text-sm font-bold mb-1">Pro Tip!</p>
-                  <p className="text-white/70 text-xs">Connect your wallet on Warpcast for better results! We'll analyze your NFTs and tokens.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">🎯</span>
-                <div>
-                  <p className="text-white/90 text-sm font-bold mb-1">How to Connect</p>
-                  <p className="text-white/70 text-xs">Go to Warpcast Settings → Verified Addresses → Add your wallet</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Benefits */}
-        {!hasWallet && (
-          <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl p-3 mb-5 border border-purple-400/30">
-            <p className="text-xs text-white/80 text-center font-bold">
-              🚀 With wallet: Analyze 20 chains, NFT collections, DeFi activity
-            </p>
           </div>
-        )}
+        </div>
 
         {/* Manual Input Option - Only if no wallet */}
         {!hasWallet && !manualInput && (
@@ -120,19 +87,17 @@ export default function WalletInfoModal({ show, hasWallet, onContinue, onCancel 
         <div className="space-y-2">
           <button
             onClick={handleContinue}
-            disabled={manualInput && !walletAddress}
+            disabled={manualInput && !walletAddress.trim()}
             className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white py-4 px-6 rounded-xl text-lg font-black 
                      hover:scale-[1.02] active:scale-98 transition-all duration-200
                      shadow-xl hover:shadow-pink-500/50
                      disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {hasWallet ? '🎉 Continue with Wallet' : 
-             manualInput ? '✨ Continue with Manual Wallet' :
-             '✨ Continue Anyway'}
+            {manualInput ? '✨ Continue with Wallet' : '✨ Continue Without Wallet'}
           </button>
           
           <button
-            onClick={onCancel}
+            onClick={onClose}
             className="w-full bg-white/10 backdrop-blur-xl text-white py-3 px-6 rounded-xl text-sm font-bold 
                      hover:bg-white/15 active:scale-98 transition-all duration-200
                      border border-white/20"
@@ -143,10 +108,7 @@ export default function WalletInfoModal({ show, hasWallet, onContinue, onCancel 
 
         {/* Note */}
         <p className="text-xs text-white/40 text-center mt-3">
-          {hasWallet ? 
-            "Don't worry, your data is never stored!" : 
-            "You can still get matched without a wallet 🎯"
-          }
+          You can get matched with or without a wallet! 🎯
         </p>
       </div>
     </div>

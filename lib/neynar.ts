@@ -79,23 +79,28 @@ export async function getUserCasts(fid: number, limit: number = 25): Promise<Far
   try {
     console.log(`🔍 Fetching ${limit} casts for FID: ${fid}`)
     
+    // Neynar V2 API endpoint
     const response = await fetch(
-      `${NEYNAR_BASE_URL}/farcaster/feed/user/${fid}/casts?limit=${limit}`,
+      `${NEYNAR_BASE_URL}/farcaster/casts?fid=${fid}&limit=${limit}`,
       {
         headers: {
           'accept': 'application/json',
           'x-api-key': NEYNAR_API_KEY
         },
-        cache: 'no-store'  // NO CACHE - fresh data!
+        cache: 'no-store'
       }
     )
     
     if (!response.ok) {
       console.error(`❌ Neynar casts API error for FID ${fid}:`, response.status, response.statusText)
+      const errorText = await response.text()
+      console.error('Error response:', errorText)
       return []
     }
     
     const data = await response.json()
+    console.log('📦 Neynar casts response keys:', Object.keys(data))
+    
     const casts = data.casts || []
     
     console.log(`✅ Fetched ${casts.length} casts for FID: ${fid}`)
