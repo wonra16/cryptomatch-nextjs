@@ -52,16 +52,33 @@ export default function Page() {
     setShowWalletModal(true)
   }
 
-  const handleContinueMatch = async () => {
+  const handleContinueMatch = async (manualWallet?: string) => {
     setShowWalletModal(false)
 
-    // Get wallet address from Warpcast context
-    const walletAddress = context.user.custody_address || 
-                          context.user.verified_addresses?.eth_addresses?.[0] ||
-                          context.user.verified_addresses?.[0]
+    // Get wallet address - PRIORITY: manual > context
+    let walletAddress = manualWallet || null
+    
+    if (!walletAddress) {
+      // Get wallet address from Warpcast context - TRY ALL POSSIBLE LOCATIONS!
+      console.log('🔍 Full context:', JSON.stringify(context, null, 2))
+      console.log('🔍 User object:', context.user)
+      console.log('🔍 custody_address:', context.user.custody_address)
+      console.log('🔍 verified_addresses:', context.user.verified_addresses)
+      console.log('🔍 verifications:', context.user.verifications)
+      
+      walletAddress = 
+        context.user.custody_address ||                              // Try custody first
+        context.user.verified_addresses?.eth_addresses?.[0] ||       // Try eth_addresses
+        context.user.verified_addresses?.ethAddresses?.[0] ||        // Try camelCase
+        context.user.verified_addresses?.[0] ||                      // Try array index
+        context.user.verifications?.eth_addresses?.[0] ||            // Try verifications
+        context.user.connectedAddress ||                             // Try connectedAddress
+        context.user.wallet_address ||                               // Try wallet_address
+        null
+    }
 
+    console.log('💰 Final wallet address:', walletAddress)
     console.log('🔍 Finding match for FID:', context.user.fid)
-    console.log('💰 Wallet address:', walletAddress)
 
     setLoading(true)
     setScreen('loading')
@@ -73,7 +90,7 @@ export default function Page() {
         body: JSON.stringify({
           fid: context.user.fid,
           username: context.user.username || `fid${context.user.fid}`,
-          walletAddress: walletAddress // ← Send wallet for portfolio analysis
+          walletAddress: walletAddress // ← Send wallet (may be null)
         })
       })
 
@@ -143,11 +160,23 @@ export default function Page() {
       return
     }
 
-    // Get wallet address from context or Neynar
-    const walletAddress = context.user.custody_address || context.user.verified_addresses?.[0]
+    // Get wallet address from context - TRY ALL POSSIBLE LOCATIONS!
+    console.log('🔍 Portfolio - Full context:', JSON.stringify(context, null, 2))
+    
+    const walletAddress = 
+      context.user.custody_address || 
+      context.user.verified_addresses?.eth_addresses?.[0] ||
+      context.user.verified_addresses?.ethAddresses?.[0] ||
+      context.user.verified_addresses?.[0] ||
+      context.user.verifications?.eth_addresses?.[0] ||
+      context.user.connectedAddress ||
+      context.user.wallet_address ||
+      null
+
+    console.log('💰 Portfolio wallet:', walletAddress)
 
     if (!walletAddress) {
-      setError('No wallet address found. Connect your wallet on Farcaster!')
+      setError('No wallet address found. Connect your wallet on Farcaster!\n\nGo to: Settings → Verified Addresses → Connect Wallet')
       setScreen('error')
       return
     }

@@ -1,12 +1,25 @@
+import { useState } from 'react'
+
 interface WalletInfoModalProps {
   show: boolean
   hasWallet: boolean
-  onContinue: () => void
+  onContinue: (manualWallet?: string) => void
   onCancel: () => void
 }
 
 export default function WalletInfoModal({ show, hasWallet, onContinue, onCancel }: WalletInfoModalProps) {
+  const [manualInput, setManualInput] = useState(false)
+  const [walletAddress, setWalletAddress] = useState('')
+
   if (!show) return null
+
+  const handleContinue = () => {
+    if (manualInput && walletAddress) {
+      onContinue(walletAddress)
+    } else {
+      onContinue()
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
@@ -61,20 +74,61 @@ export default function WalletInfoModal({ show, hasWallet, onContinue, onCancel 
         {!hasWallet && (
           <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl p-3 mb-5 border border-purple-400/30">
             <p className="text-xs text-white/80 text-center font-bold">
-              🚀 With wallet: Analyze 7 chains, NFT collections, DeFi activity
+              🚀 With wallet: Analyze 20 chains, NFT collections, DeFi activity
             </p>
+          </div>
+        )}
+
+        {/* Manual Input Option - Only if no wallet */}
+        {!hasWallet && !manualInput && (
+          <button
+            onClick={() => setManualInput(true)}
+            className="w-full bg-white/10 backdrop-blur-xl text-white py-3 px-4 rounded-xl text-sm font-bold 
+                     hover:bg-white/15 active:scale-98 transition-all duration-200
+                     border border-white/20 mb-3"
+          >
+            🔗 Enter Wallet Address Manually
+          </button>
+        )}
+
+        {/* Manual Input Field */}
+        {manualInput && (
+          <div className="mb-4">
+            <label className="text-xs text-white/70 mb-2 block">Ethereum Wallet Address</label>
+            <input
+              type="text"
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
+              placeholder="0x..."
+              className="w-full bg-white/10 backdrop-blur-xl text-white py-3 px-4 rounded-xl text-sm
+                       border border-white/20 focus:border-purple-400 focus:outline-none
+                       placeholder:text-white/30"
+            />
+            <button
+              onClick={() => {
+                setManualInput(false)
+                setWalletAddress('')
+              }}
+              className="text-xs text-white/50 hover:text-white/80 mt-2"
+            >
+              ← Back to auto-detect
+            </button>
           </div>
         )}
 
         {/* Buttons */}
         <div className="space-y-2">
           <button
-            onClick={onContinue}
+            onClick={handleContinue}
+            disabled={manualInput && !walletAddress}
             className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white py-4 px-6 rounded-xl text-lg font-black 
                      hover:scale-[1.02] active:scale-98 transition-all duration-200
-                     shadow-xl hover:shadow-pink-500/50"
+                     shadow-xl hover:shadow-pink-500/50
+                     disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {hasWallet ? '🎉 Continue with Wallet' : '✨ Continue Anyway'}
+            {hasWallet ? '🎉 Continue with Wallet' : 
+             manualInput ? '✨ Continue with Manual Wallet' :
+             '✨ Continue Anyway'}
           </button>
           
           <button

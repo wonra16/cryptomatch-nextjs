@@ -95,8 +95,8 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
       
       console.log(`🔢 FID ${followedFid} (@${followedProfile.username}): score=${compatibilityScore}, content=${contentSimilarity}, social=${socialScore}`)
       
-      // Only add if score > 40 (lowered from 50)
-      if (compatibilityScore > 40) {
+      // Only add if score > 30 (lowered from 40 for better results!)
+      if (compatibilityScore > 30) {
         const commonInterests = userContentProfile.topicsDetected.filter((t: string) =>
           followedContentProfile.topicsDetected.includes(t)
         )
