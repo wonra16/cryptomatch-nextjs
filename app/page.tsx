@@ -101,7 +101,7 @@ export default function Home() {
     }
   }
 
-  const shareResult = () => {
+  const shareResult = async () => {
     if (!matchResult) return
 
     const { compatibility } = matchResult
@@ -109,8 +109,15 @@ export default function Home() {
     
     const text = `I just matched with ${compatibility.match_name} on CryptoMatch! 💕\n\n${compatibility.score}% compatibility! 🔥\n\nFind YOUR crypto celebrity match:`
 
-    // Use Farcaster SDK to open compose
-    sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(appUrl)}`)
+    // Use Farcaster SDK composeCast
+    try {
+      await sdk.actions.composeCast({
+        text: text,
+        embeds: [appUrl]
+      })
+    } catch (error) {
+      console.error('Failed to open cast composer:', error)
+    }
   }
 
   const tryAgain = () => {
