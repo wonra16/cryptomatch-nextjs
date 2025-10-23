@@ -109,12 +109,10 @@ export default function Home() {
     
     const text = `I just matched with ${compatibility.match_name} on CryptoMatch! 💕\n\n${compatibility.score}% compatibility! 🔥\n\nFind YOUR crypto celebrity match:`
 
-    // Use Farcaster SDK composeCast
+    // Use openUrl to open Warpcast composer
     try {
-      await sdk.actions.composeCast({
-        text: text,
-        embeds: [appUrl]
-      })
+      const composerUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(appUrl)}`
+      await sdk.actions.openUrl(composerUrl)
     } catch (error) {
       console.error('Failed to open cast composer:', error)
     }
