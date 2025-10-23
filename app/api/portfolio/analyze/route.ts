@@ -56,10 +56,14 @@ export async function POST(request: NextRequest) {
       success: true,
       address: analysis.address,
       total_value: analysis.total_value_usd,
+      total_meme_coins: analysis.total_meme_coins || 0,  // ← MEME COINS!
       active_chains: activeChains,
       chains_analyzed: ['Ethereum', 'BSC', 'Polygon', 'Arbitrum', 'Optimism', 'Base', 'Avalanche'],
       change_24h: parseFloat(change24h),
       ai_roast: funnyRoasts[roastIndex],
+      
+      // FULL ANALYSIS OBJECT:
+      analysis: analysis,  // ← Pass everything!
       
       // Chain breakdown
       chain_balances: Object.entries(analysis.chains).map(([chain, data]) => ({
@@ -67,6 +71,7 @@ export async function POST(request: NextRequest) {
         native_balance: data.native_balance,
         native_value: data.native_value_usd,
         token_count: data.tokens.length,
+        meme_coins: data.meme_coins || 0  // ← MEME COUNT per chain!
       })),
 
       // All tokens across all chains
@@ -81,19 +86,15 @@ export async function POST(request: NextRequest) {
 
       analyzed_at: analysis.analyzed_at,
       using_real_data: true,
-      data_source: 'Multi-chain: dRPC + CoinGecko (100% FREE!)',
-      note: 'Real balances from 7 blockchains! Prices from CoinGecko.',
+      data_source: 'Multi-chain: Alchemy + CoinGecko',
+      note: 'Real balances from 20 blockchains! Prices from CoinGecko.',
       features: [
-        '✅ Ethereum Mainnet',
-        '✅ Binance Smart Chain',
-        '✅ Polygon',
-        '✅ Arbitrum',
-        '✅ Optimism', 
-        '✅ Base',
-        '✅ Avalanche',
+        '✅ 20 Networks (Ethereum, Polygon, Base...)',
+        '✅ ALL tokens (no limit!)',
+        '✅ Meme coin detection (23 keywords)',
         '✅ Real-time prices',
         '✅ ERC20 Token detection',
-        '✅ 100% FREE APIs'
+        '✅ Comprehensive analysis'
       ]
     }
 

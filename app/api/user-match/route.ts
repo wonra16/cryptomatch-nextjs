@@ -45,6 +45,12 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
     hasWallet: !!userWallet
   })
   
+  // CHECK: If following count is too low!
+  if (userFollowing.length < 10) {
+    console.log('⚠️ User follows too few people!')
+    return []  // Return empty - will show friendly error message
+  }
+  
   // Analyze user's content
   const userContentProfile = analyzeContent(userCasts.map((c: any) => c.text || ''))
   console.log('📝 User interests:', userContentProfile.topicsDetected.slice(0, 5))
@@ -63,8 +69,8 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
   // Strategy: Find users who follow similar people
   const potentialMatches: UserMatchResult[] = []
   
-  // Get a sample of users from following list - INCREASED!
-  const sampleFollowing = userFollowing.slice(0, 50) // ← Increased from 30 to 50!
+  // Get a sample of users from following list - INCREASED TO 100!
+  const sampleFollowing = userFollowing.slice(0, 100) // ← 50 → 100!
   console.log(`🎯 Analyzing ${sampleFollowing.length} users from following list`)
   
   for (const followedFid of sampleFollowing) {
@@ -95,8 +101,8 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
       
       console.log(`🔢 FID ${followedFid} (@${followedProfile.username}): score=${compatibilityScore}, content=${contentSimilarity}, social=${socialScore}`)
       
-      // Only add if score > 20 (LOWERED from 30 for even better results!)
-      if (compatibilityScore > 20) {
+      // Only add if score > 10 (ULTRA LOW threshold for maximum matches!)
+      if (compatibilityScore > 10) {
         const commonInterests = userContentProfile.topicsDetected.filter((t: string) =>
           followedContentProfile.topicsDetected.includes(t)
         )
@@ -244,9 +250,9 @@ export async function POST(request: NextRequest) {
 
     if (matches.length === 0) {
       return NextResponse.json({
-        success: false,  // ✅ DÜZELTILDI: Boş matches = başarısız
+        success: false,
         matches: [],
-        error: 'No matches found yet. Keep building your presence on Farcaster! 🚀'
+        error: 'No matches found yet! 😔\n\nTips:\n• Follow 50+ people on Farcaster\n• Engage with crypto/NFT content\n• Build your on-chain presence\n• Try again after following more users! 🚀'
       }, { status: 404 })
     }
 

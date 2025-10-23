@@ -264,8 +264,8 @@ export default function Page() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          walletAddress,
-          username: context.user.username || `fid${context.user.fid}`
+          address: walletAddress,  // ← FIXED! 'address' key!
+          fid: context.user.fid
         })
       })
 
