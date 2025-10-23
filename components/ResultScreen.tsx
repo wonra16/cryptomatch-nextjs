@@ -206,10 +206,27 @@ export default function ResultScreen({ data, context, onBack }: ResultScreenProp
                     <div className="bg-white/5 rounded-xl p-3">
                       <p className="text-xs text-white/60 mb-1">Active Chains</p>
                       <p className="text-lg font-bold text-green-300">
-                        {portfolio_summary.active_chains}/7
+                        {portfolio_summary.active_chains}/20
                       </p>
                     </div>
                   </div>
+
+                  {/* MEME COIN BADGE - NEW! */}
+                  {portfolio_summary.meme_coins_count > 0 && (
+                    <div className="mt-3 bg-gradient-to-r from-orange-500/30 to-yellow-500/30 border-2 border-yellow-400/50 px-4 py-3 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">🐕</span>
+                        <div>
+                          <p className="font-black text-yellow-300">
+                            {portfolio_summary.meme_coins_count} Meme Coins Detected!
+                          </p>
+                          <p className="text-xs text-white/70">
+                            You're a true degen! Diamond hands! 💎🙌
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {portfolio_summary.is_multi_chain && (
                     <div className="mt-3 flex items-center gap-2 bg-purple-500/20 px-3 py-2 rounded-lg">

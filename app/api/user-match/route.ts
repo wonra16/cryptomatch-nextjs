@@ -63,8 +63,8 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
   // Strategy: Find users who follow similar people
   const potentialMatches: UserMatchResult[] = []
   
-  // Get a sample of users from following list
-  const sampleFollowing = userFollowing.slice(0, 30) // ← Increased from 20 to 30
+  // Get a sample of users from following list - INCREASED!
+  const sampleFollowing = userFollowing.slice(0, 50) // ← Increased from 30 to 50!
   console.log(`🎯 Analyzing ${sampleFollowing.length} users from following list`)
   
   for (const followedFid of sampleFollowing) {
@@ -95,8 +95,8 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
       
       console.log(`🔢 FID ${followedFid} (@${followedProfile.username}): score=${compatibilityScore}, content=${contentSimilarity}, social=${socialScore}`)
       
-      // Only add if score > 30 (lowered from 40 for better results!)
-      if (compatibilityScore > 30) {
+      // Only add if score > 20 (LOWERED from 30 for even better results!)
+      if (compatibilityScore > 20) {
         const commonInterests = userContentProfile.topicsDetected.filter((t: string) =>
           followedContentProfile.topicsDetected.includes(t)
         )

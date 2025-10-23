@@ -244,6 +244,7 @@ export async function POST(request: NextRequest) {
         const analysis = await analyzeWallet(walletAddress)
         portfolioData = {
           total_value: analysis.total_value_usd,
+          total_meme_coins: analysis.total_meme_coins || 0,  // ← NEW!
           active_chains: Object.keys(analysis.chains).filter(
             chain => analysis.chains[chain].tokens.length > 0
           ).length,
@@ -343,7 +344,8 @@ export async function POST(request: NextRequest) {
           is_defi_user: portfolioAnalysis.defiUser,
           nft_count: portfolioAnalysis.nftCount || 0,
           nft_summary: nftAnalysis ? getNFTSummary(nftAnalysis) : null,
-          popular_nfts: portfolioAnalysis.popularNFTs || []
+          popular_nfts: portfolioAnalysis.popularNFTs || [],
+          meme_coins_count: portfolioData?.total_meme_coins || 0  // ← NEW!
         } : null,
         
         // Content summary

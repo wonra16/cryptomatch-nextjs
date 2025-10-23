@@ -24,9 +24,11 @@ export interface WalletAnalysis {
       native_balance: string
       native_value_usd: string
       tokens: TokenBalance[]
+      meme_coins?: number
     }
   }
   all_tokens: TokenBalance[]
+  total_meme_coins?: number
   analyzed_at: string
 }
 
@@ -72,7 +74,7 @@ function getAlchemyUrl(network: string): string {
 }
 
 // ============================================================================
-// ALCHEMY API - GET TOKEN BALANCES
+// ALCHEMY API - GET TOKEN BALANCES (COMPREHENSIVE!)
 // ============================================================================
 async function getTokenBalances(address: string, network: string): Promise<any> {
   if (!isAlchemyConfigured()) {
@@ -83,6 +85,7 @@ async function getTokenBalances(address: string, network: string): Promise<any> 
   try {
     const url = getAlchemyUrl(network)
     
+    // Get ALL tokens (not just top 20!)
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -90,7 +93,10 @@ async function getTokenBalances(address: string, network: string): Promise<any> 
         jsonrpc: '2.0',
         id: 1,
         method: 'alchemy_getTokenBalances',
-        params: [address, 'erc20']
+        params: [
+          address,
+          'erc20' // Get ALL ERC20 tokens!
+        ]
       })
     })
 
@@ -100,7 +106,19 @@ async function getTokenBalances(address: string, network: string): Promise<any> 
     }
 
     const data = await response.json()
-    return data.result?.tokenBalances || []
+    const tokenBalances = data.result?.tokenBalances || []
+    
+    console.log(`📊 ${network}: Found ${tokenBalances.length} total tokens`)
+    
+    // Filter out zero balances
+    const nonZeroBalances = tokenBalances.filter((t: any) => {
+      const balance = BigInt(t.tokenBalance || '0x0')
+      return balance > 0n
+    })
+    
+    console.log(`📊 ${network}: ${nonZeroBalances.length} non-zero tokens`)
+    
+    return nonZeroBalances
     
   } catch (error) {
     console.error(`❌ Error fetching balances for ${network}:`, error)
@@ -253,13 +271,23 @@ export async function analyzeWallet(address: string): Promise<WalletAnalysis> {
         return null
       }
 
-      // Get ERC20 tokens
+      // Get ERC20 tokens - ALL OF THEM!
       const tokenBalances = await getTokenBalances(address, network) || []
       
-      // Process tokens (top 20 per chain)
+      console.log(`📊 ${networkInfo.name}: Processing ${tokenBalances.length} tokens...`)
+      
+      // Process ALL tokens (no limit!) - Rabby/OKX style!
       const tokens: TokenBalance[] = []
+      let memeCoinsFound = 0
 
-      for (const token of tokenBalances.slice(0, 20)) {
+      // Meme coin keywords
+      const MEME_KEYWORDS = [
+        'DOGE', 'SHIB', 'PEPE', 'FLOKI', 'ELON', 'WOJAK', 'BONK', 'WIF',
+        'MEME', 'APU', 'BRETT', 'TOSHI', 'MOCHI', 'DEGEN', 'MFER', 'CHAD',
+        'BASED', 'HIGHER', 'NORMIE', 'NEIRO', 'POPCAT', 'MEW', 'MYRO'
+      ]
+
+      for (const token of tokenBalances) { // ← NO SLICE! Process ALL!
         if (token.tokenBalance === '0x0') continue
 
         // Get metadata
@@ -271,6 +299,15 @@ export async function analyzeWallet(address: string): Promise<WalletAnalysis> {
         const balanceFormatted = Number(balance) / (10 ** decimals)
 
         if (balanceFormatted < 0.0001) continue // Skip dust
+
+        // Detect meme coins!
+        const symbol = (metadata.symbol || '').toUpperCase()
+        const isMeme = MEME_KEYWORDS.some(keyword => symbol.includes(keyword))
+        
+        if (isMeme) {
+          memeCoinsFound++
+          console.log(`🐕 MEME COIN FOUND: ${symbol}!`)
+        }
 
         tokens.push({
           symbol: metadata.symbol || '???',
@@ -284,13 +321,14 @@ export async function analyzeWallet(address: string): Promise<WalletAnalysis> {
         })
       }
 
-      console.log(`✅ ${networkInfo.name}: ${nativeBalance} ${networkInfo.symbol} ($${nativeValue.toFixed(2)}) + ${tokens.length} tokens`)
+      console.log(`✅ ${networkInfo.name}: ${nativeBalance} ${networkInfo.symbol} ($${nativeValue.toFixed(2)}) + ${tokens.length} tokens (${memeCoinsFound} meme coins!)`)
 
       return {
         network,
         native_balance: nativeBalance,
         native_value_usd: nativeValue.toFixed(2),
-        tokens
+        tokens,
+        meme_coins: memeCoinsFound
       }
 
     } catch (error) {
@@ -305,6 +343,7 @@ export async function analyzeWallet(address: string): Promise<WalletAnalysis> {
   // Aggregate data
   const chains: any = {}
   let totalValue = 0
+  let totalMemeCoins = 0
   const allTokens: TokenBalance[] = []
 
   for (const result of validResults) {
@@ -314,20 +353,23 @@ export async function analyzeWallet(address: string): Promise<WalletAnalysis> {
     chains[result.network] = {
       native_balance: result.native_balance,
       native_value_usd: result.native_value_usd,
-      tokens: result.tokens
+      tokens: result.tokens,
+      meme_coins: result.meme_coins || 0
     }
 
     totalValue += parseFloat(result.native_value_usd)
+    totalMemeCoins += result.meme_coins || 0
     allTokens.push(...result.tokens)
   }
 
-  console.log(`🎉 Total portfolio value: $${totalValue.toFixed(2)} across ${validResults.length} chains with ${allTokens.length} tokens`)
+  console.log(`🎉 Total portfolio: $${totalValue.toFixed(2)} across ${validResults.length} chains with ${allTokens.length} tokens (${totalMemeCoins} meme coins! 🐕)`)
 
   return {
     address,
     total_value_usd: totalValue.toFixed(2),
     chains,
     all_tokens: allTokens,
+    total_meme_coins: totalMemeCoins,
     analyzed_at: new Date().toISOString()
   }
 }
