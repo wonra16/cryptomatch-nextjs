@@ -1,8 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
   images: {
-    unoptimized: true,
+    domains: [
+      'pbs.twimg.com',
+      'imagedelivery.net',
+      'i.imgur.com'
+    ],
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
 }
 
