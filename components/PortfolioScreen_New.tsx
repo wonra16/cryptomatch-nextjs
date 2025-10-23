@@ -9,14 +9,24 @@ interface PortfolioScreenProps {
 }
 
 export default function PortfolioScreen({ data, onBack, onAddWallet }: PortfolioScreenProps) {
-  const [showWalletInput, setShowWalletInput] = useState(false)
+  const [showWalletInput, setShowWalletInput] = useState<'none' | 'auto' | 'manual'>('none')
   const [manualWallet, setManualWallet] = useState('')
+  const [loading, setLoading] = useState(false)
   
-  const handleAddWallet = () => {
+  // ✅ Manual wallet submit
+  const handleManualSubmit = () => {
     if (manualWallet.trim() && onAddWallet) {
       onAddWallet(manualWallet.trim())
       setManualWallet('')
-      setShowWalletInput(false)
+      setShowWalletInput('none')
+    }
+  }
+  
+  // ✅ Auto fetch Farcaster wallets
+  const handleAutoFetch = () => {
+    setShowWalletInput('none')
+    if (onAddWallet) {
+      onAddWallet('AUTO_FETCH')
     }
   }
   
@@ -49,10 +59,10 @@ export default function PortfolioScreen({ data, onBack, onAddWallet }: Portfolio
   if (walletsAnalyzed.length === 0 || totalValue === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white p-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-2xl mx-auto">
           
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-8">
             <button
               onClick={onBack}
               className="flex items-center gap-2 text-white/80 hover:text-white transition-all hover:scale-105"
@@ -60,34 +70,40 @@ export default function PortfolioScreen({ data, onBack, onAddWallet }: Portfolio
               <span className="text-2xl">←</span>
               <span className="font-bold">Back</span>
             </button>
-            <h1 className="text-2xl md:text-3xl font-black">Portfolio Analysis 💰</h1>
-            <div className="w-20"></div>
+            <h1 className="text-xl font-black">Portfolio 💰</h1>
+            <div className="w-16"></div>
           </div>
 
-          {/* Welcome Card */}
-          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-12 border border-white/20 text-center mb-6">
-            <div className="text-8xl mb-6">💼</div>
-            <h2 className="text-4xl font-black mb-4">Welcome to Portfolio!</h2>
-            <p className="text-xl text-white/80 mb-8">
-              Add your wallet addresses to analyze your crypto holdings
+          {/* Welcome Card - MINIMAL! */}
+          <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-8 border border-white/20 text-center mb-6">
+            <div className="text-6xl mb-4">💼</div>
+            <h2 className="text-3xl font-black mb-3">Analyze Your Portfolio</h2>
+            <p className="text-white/70 mb-8">
+              Connect or add wallet to see your holdings
             </p>
             
-            {/* Add Wallet Button - BIG! */}
-            <button
-              onClick={() => setShowWalletInput(true)}
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 px-12 py-5 rounded-2xl font-black text-2xl hover:scale-105 transition shadow-xl"
-            >
-              + Add Wallet Address
-            </button>
+            {/* 2 OPTIONS! */}
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleAutoFetch}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-4 rounded-xl font-bold hover:scale-105 transition shadow-xl"
+              >
+                🔗 Connect Farcaster Wallets
+              </button>
+              
+              <button
+                onClick={() => setShowWalletInput('manual')}
+                className="bg-gradient-to-r from-blue-500 to-cyan-500 px-8 py-4 rounded-xl font-bold hover:scale-105 transition shadow-xl"
+              >
+                ✍️ Add Wallet Manually
+              </button>
+            </div>
           </div>
 
           {/* Manual Wallet Input */}
-          {showWalletInput && (
+          {showWalletInput === 'manual' && (
             <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl rounded-2xl p-6 border border-blue-400/30">
-              <h3 className="text-xl font-bold mb-3">Add Wallet Address 🔗</h3>
-              <p className="text-white/70 text-sm mb-4">
-                Enter your Ethereum wallet address or ENS name
-              </p>
+              <h3 className="text-lg font-bold mb-3">Enter Wallet Address</h3>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -95,10 +111,10 @@ export default function PortfolioScreen({ data, onBack, onAddWallet }: Portfolio
                   onChange={(e) => setManualWallet(e.target.value)}
                   placeholder="0x... or vitalik.eth"
                   className="flex-1 bg-black/30 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-blue-400 focus:outline-none"
-                  onKeyDown={(e) => e.key === 'Enter' && handleAddWallet()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleManualSubmit()}
                 />
                 <button
-                  onClick={handleAddWallet}
+                  onClick={handleManualSubmit}
                   disabled={!manualWallet.trim()}
                   className="bg-gradient-to-r from-blue-500 to-cyan-500 px-8 py-3 rounded-xl font-bold hover:scale-105 transition disabled:opacity-50 disabled:hover:scale-100"
                 >
@@ -108,22 +124,19 @@ export default function PortfolioScreen({ data, onBack, onAddWallet }: Portfolio
             </div>
           )}
 
-          {/* Info Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 text-center">
-              <div className="text-4xl mb-2">🔗</div>
-              <h3 className="font-bold mb-2">Multiple Wallets</h3>
-              <p className="text-sm text-white/70">Add multiple wallet addresses to see combined portfolio</p>
+          {/* Info Cards - MINIMAL! */}
+          <div className="grid grid-cols-3 gap-3 mt-6">
+            <div className="bg-white/5 rounded-xl p-4 text-center">
+              <div className="text-2xl mb-1">🔗</div>
+              <p className="text-xs text-white/70">Multi-Wallet</p>
             </div>
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 text-center">
-              <div className="text-4xl mb-2">⛓️</div>
-              <h3 className="font-bold mb-2">Multi-Chain</h3>
-              <p className="text-sm text-white/70">Analyze across 20+ blockchain networks</p>
+            <div className="bg-white/5 rounded-xl p-4 text-center">
+              <div className="text-2xl mb-1">⛓️</div>
+              <p className="text-xs text-white/70">20+ Chains</p>
             </div>
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 text-center">
-              <div className="text-4xl mb-2">🐕</div>
-              <h3 className="font-bold mb-2">Meme Detector</h3>
-              <p className="text-sm text-white/70">Automatically detects and highlights your meme coins</p>
+            <div className="bg-white/5 rounded-xl p-4 text-center">
+              <div className="text-2xl mb-1">🐕</div>
+              <p className="text-xs text-white/70">Meme Coins</p>
             </div>
           </div>
         </div>
@@ -158,19 +171,19 @@ export default function PortfolioScreen({ data, onBack, onAddWallet }: Portfolio
           </button>
           <h1 className="text-2xl md:text-3xl font-black">Portfolio Analysis 💰</h1>
           <button
-            onClick={() => setShowWalletInput(!showWalletInput)}
+            onClick={() => setShowWalletInput(showWalletInput === 'none' ? 'manual' : 'none')}
             className="bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-2 rounded-xl font-bold text-sm hover:scale-105 transition"
           >
             + Wallet
           </button>
         </div>
 
-        {/* Manual Wallet Input */}
-        {showWalletInput && (
+        {/* Manual Wallet Input - In Results */}
+        {showWalletInput === 'manual' && (
           <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl rounded-2xl p-6 mb-6 border border-blue-400/30">
-            <h3 className="text-xl font-bold mb-3">Add Wallet Address 🔗</h3>
+            <h3 className="text-xl font-bold mb-3">Add Another Wallet 🔗</h3>
             <p className="text-white/70 text-sm mb-4">
-              Add another wallet to analyze together with your Farcaster wallets
+              Add more wallets to see combined portfolio value
             </p>
             <div className="flex gap-2">
               <input
@@ -179,10 +192,10 @@ export default function PortfolioScreen({ data, onBack, onAddWallet }: Portfolio
                 onChange={(e) => setManualWallet(e.target.value)}
                 placeholder="0x... or ENS"
                 className="flex-1 bg-black/30 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-blue-400 focus:outline-none"
-                onKeyDown={(e) => e.key === 'Enter' && handleAddWallet()}
+                onKeyDown={(e) => e.key === 'Enter' && handleManualSubmit()}
               />
               <button
-                onClick={handleAddWallet}
+                onClick={handleManualSubmit}
                 disabled={!manualWallet.trim()}
                 className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-3 rounded-xl font-bold hover:scale-105 transition disabled:opacity-50 disabled:hover:scale-100"
               >
