@@ -39,6 +39,28 @@ export default function Home() {
     setLoading(true)
 
     try {
+      // Farcaster'dan wallet adreslerini al
+      let walletAddress = null
+      
+      if (context?.user?.fid) {
+        try {
+          // Farcaster API'den wallet adreslerini çek
+          const farcasterResponse = await fetch(`https://api.warpcast.com/v2/user-by-fid?fid=${context.user.fid}`)
+          const farcasterData = await farcasterResponse.json()
+          
+          // Verified addresses varsa al
+          if (farcasterData.result?.user?.verifiedAddresses?.eth_addresses?.length > 0) {
+            walletAddress = farcasterData.result.user.verifiedAddresses.eth_addresses[0]
+          }
+          // Custody address'i fallback olarak kullan
+          else if (farcasterData.result?.user?.custody_address) {
+            walletAddress = farcasterData.result.user.custody_address
+          }
+        } catch (farcasterErr) {
+          console.warn('Could not fetch Farcaster wallet:', farcasterErr)
+        }
+      }
+
       const response = await fetch('/api/match', {
         method: 'POST',
         headers: {
@@ -47,6 +69,7 @@ export default function Home() {
         body: JSON.stringify({
           fid: context?.user?.fid || Math.floor(Math.random() * 100000),
           username: context?.user?.username || 'anon',
+          walletAddress: walletAddress, // Wallet adresini gönder!
         }),
       })
 
