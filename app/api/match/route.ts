@@ -5,6 +5,10 @@ import { getUserProfile, getUserCasts, isNeynarConfigured } from '@/lib/neynar'
 import { analyzeContent, generateInterestInsight } from '@/lib/content-analysis'
 import { analyzeNFTPortfolio, isAlchemyConfigured, getNFTSummary } from '@/lib/alchemy-nft'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 interface MatchRequest {
   fid: number;
   username?: string;

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { analyzeWallet } from '@/lib/blockchain'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 const funnyRoasts = [
   "Your portfolio is like a rollercoaster - exciting but makes you want to throw up! 🎢😵",
   "You're basically a professional HODLer at this point. Diamond hands or just forgot your password? 💎🙌",

@@ -3,6 +3,10 @@ import { getUserProfile, getUserCasts, getUserFollowing, findCommonFollowing, ca
 import { analyzeContent, calculateContentSimilarity, getTopInterests } from '@/lib/content-analysis'
 import { analyzeWallet } from '@/lib/blockchain'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 interface UserMatchRequest {
   fid: number;
   username?: string;
