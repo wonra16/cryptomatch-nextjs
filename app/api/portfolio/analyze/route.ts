@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
     // Analyze ALL wallets and combine results!
     let combinedAnalysis: any = {
       address: walletsToAnalyze[0],  // Primary address
+      wallets_analyzed: walletsToAnalyze,  // ← Store all analyzed wallets!
       total_value_usd: '0',
       total_meme_coins: 0,
       chains: {},

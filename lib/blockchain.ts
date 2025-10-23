@@ -85,7 +85,9 @@ async function getTokenBalances(address: string, network: string): Promise<any> 
   try {
     const url = getAlchemyUrl(network)
     
-    // Get ALL tokens (not just top 20!)
+    console.log(`🔍 Fetching token balances for ${address} on ${network}`)
+    
+    // ✅ FIX: NO second parameter! Just address!
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -93,30 +95,44 @@ async function getTokenBalances(address: string, network: string): Promise<any> 
         jsonrpc: '2.0',
         id: 1,
         method: 'alchemy_getTokenBalances',
-        params: [
-          address,
-          'erc20' // Get ALL ERC20 tokens!
-        ]
+        params: [address]  // ← ONLY ADDRESS! NO 'erc20'!
       })
     })
 
     if (!response.ok) {
-      console.error(`❌ Alchemy error for ${network}:`, response.statusText)
+      const errorText = await response.text()
+      console.error(`❌ Alchemy HTTP error for ${network}:`, {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      })
       return null
     }
 
     const data = await response.json()
+    
+    // Check for JSON-RPC error
+    if (data.error) {
+      console.error(`❌ Alchemy JSON-RPC error for ${network}:`, data.error)
+      return null
+    }
+    
     const tokenBalances = data.result?.tokenBalances || []
     
     console.log(`📊 ${network}: Found ${tokenBalances.length} total tokens`)
     
     // Filter out zero balances
     const nonZeroBalances = tokenBalances.filter((t: any) => {
-      const balance = BigInt(t.tokenBalance || '0x0')
-      return balance > 0n
+      try {
+        const balance = BigInt(t.tokenBalance || '0x0')
+        return balance > 0n
+      } catch (e) {
+        console.warn(`⚠️ Invalid token balance:`, t)
+        return false
+      }
     })
     
-    console.log(`📊 ${network}: ${nonZeroBalances.length} non-zero tokens`)
+    console.log(`✅ ${network}: ${nonZeroBalances.length} non-zero tokens`)
     
     return nonZeroBalances
     

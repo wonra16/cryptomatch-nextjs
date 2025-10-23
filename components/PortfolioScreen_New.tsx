@@ -1,11 +1,25 @@
 'use client'
 
+import { useState } from 'react'
+
 interface PortfolioScreenProps {
   data: any
   onBack: () => void
+  onAddWallet?: (wallet: string) => void  // ← NEW!
 }
 
-export default function PortfolioScreen({ data, onBack }: PortfolioScreenProps) {
+export default function PortfolioScreen({ data, onBack, onAddWallet }: PortfolioScreenProps) {
+  const [showWalletInput, setShowWalletInput] = useState(false)
+  const [manualWallet, setManualWallet] = useState('')
+  
+  const handleAddWallet = () => {
+    if (manualWallet.trim() && onAddWallet) {
+      onAddWallet(manualWallet.trim())
+      setManualWallet('')
+      setShowWalletInput(false)
+    }
+  }
+  
   if (!data || !data.success) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] text-white p-6 flex items-center justify-center">
@@ -56,8 +70,40 @@ export default function PortfolioScreen({ data, onBack }: PortfolioScreenProps) 
             <span className="font-bold">Back</span>
           </button>
           <h1 className="text-2xl md:text-3xl font-black">Portfolio Analysis 💰</h1>
-          <div className="w-20"></div>
+          <button
+            onClick={() => setShowWalletInput(!showWalletInput)}
+            className="bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-2 rounded-xl font-bold text-sm hover:scale-105 transition"
+          >
+            + Wallet
+          </button>
         </div>
+
+        {/* Manual Wallet Input */}
+        {showWalletInput && (
+          <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl rounded-2xl p-6 mb-6 border border-blue-400/30">
+            <h3 className="text-xl font-bold mb-3">Add Wallet Address 🔗</h3>
+            <p className="text-white/70 text-sm mb-4">
+              Add another wallet to analyze together with your Farcaster wallets
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={manualWallet}
+                onChange={(e) => setManualWallet(e.target.value)}
+                placeholder="0x... or ENS"
+                className="flex-1 bg-black/30 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:border-blue-400 focus:outline-none"
+                onKeyDown={(e) => e.key === 'Enter' && handleAddWallet()}
+              />
+              <button
+                onClick={handleAddWallet}
+                disabled={!manualWallet.trim()}
+                className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-3 rounded-xl font-bold hover:scale-105 transition disabled:opacity-50 disabled:hover:scale-100"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Total Value Card */}
         <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-3xl p-8 mb-6 border border-white/20 text-center">

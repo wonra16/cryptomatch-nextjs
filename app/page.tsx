@@ -267,6 +267,46 @@ export default function Page() {
     }
   }
 
+  const handleAddWallet = async (newWallet: string) => {
+    if (!portfolioData || !context?.user?.fid) return
+
+    setLoading(true)
+    
+    try {
+      console.log('💰 Adding wallet to portfolio:', newWallet)
+      
+      // Get existing wallets from current portfolio
+      const existingWallets = portfolioData.analysis?.wallets_analyzed || []
+      const allWallets = [...existingWallets, newWallet]
+      
+      console.log('💰 Re-analyzing with wallets:', allWallets)
+      
+      const res = await fetch('/api/portfolio/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          addresses: allWallets,
+          fid: context.user.fid
+        })
+      })
+
+      const data = await res.json()
+      
+      if (data.success) {
+        setPortfolioData(data)
+        console.log('✅ Portfolio updated with new wallet!')
+      } else {
+        throw new Error(data.error || 'Failed to add wallet')
+      }
+    } catch (err: any) {
+      console.error('❌ Add wallet error:', err)
+      setError(err.message)
+      setScreen('error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleBack = () => {
     setScreen('home')
     setError(null)
@@ -333,7 +373,11 @@ export default function Page() {
       )}
       
       {screen === 'portfolio' && portfolioData && (
-        <PortfolioScreen data={portfolioData} onBack={handleBack} />
+        <PortfolioScreen 
+          data={portfolioData} 
+          onBack={handleBack}
+          onAddWallet={handleAddWallet}
+        />
       )}
     </>
   )
