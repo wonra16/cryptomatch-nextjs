@@ -3,6 +3,7 @@ import { CELEBRITIES, Celebrity } from '@/lib/celebrities'
 import { analyzeWallet } from '@/lib/blockchain'
 import { getUserProfile, getUserCasts, isNeynarConfigured } from '@/lib/neynar'
 import { analyzeContent, generateInterestInsight } from '@/lib/content-analysis'
+import { analyzeNFTPortfolio, isAlchemyConfigured, getNFTSummary } from '@/lib/alchemy-nft'
 
 interface MatchRequest {
   fid: number;
@@ -24,9 +25,14 @@ interface PortfolioAnalysis {
   hodler: boolean;
   totalValue: number;
   activeChains: number;
+  nftCount?: number;
+  hasBAYC?: boolean;
+  hasPunks?: boolean;
+  hasAzuki?: boolean;
+  popularNFTs?: string[];
 }
 
-function analyzePortfolioMatch(portfolioData: any): PortfolioAnalysis {
+function analyzePortfolioMatch(portfolioData: any, nftData?: any): PortfolioAnalysis {
   const chains = portfolioData.chain_balances || []
   const tokens = portfolioData.tokens || []
   const totalValue = parseFloat(portfolioData.total_value) || 0
@@ -46,10 +52,15 @@ function analyzePortfolioMatch(portfolioData: any): PortfolioAnalysis {
     ),
     multiChain: portfolioData.active_chains >= 3,
     diversified: tokens.length >= 5,
-    nftCollector: false, // Would need NFT API
+    nftCollector: nftData ? nftData.isCollector : false,
     hodler: totalValue > 1000,
     totalValue,
-    activeChains: portfolioData.active_chains || 0
+    activeChains: portfolioData.active_chains || 0,
+    nftCount: nftData?.totalNFTs || 0,
+    hasBAYC: nftData?.hasBAYC || false,
+    hasPunks: nftData?.hasPunks || false,
+    hasAzuki: nftData?.hasAzuki || false,
+    popularNFTs: nftData?.popularCollections || []
   }
 }
 
@@ -147,6 +158,18 @@ function generatePersonalizedInsight(
   
   // Portfolio-based insights
   if (portfolioAnalysis && portfolioAnalysis.totalValue > 0) {
+    if (portfolioAnalysis.hasBAYC) {
+      insights.push(`BAYC holder!? ${firstName} recognizes true apes! 🐵💎`)
+    }
+    if (portfolioAnalysis.hasPunks) {
+      insights.push(`CryptoPunk owner! OG status with ${firstName}! 👾🔥`)
+    }
+    if (portfolioAnalysis.hasAzuki) {
+      insights.push(`Azuki collector! ${firstName} sees your taste! 🌸✨`)
+    }
+    if (portfolioAnalysis.nftCount && portfolioAnalysis.nftCount > 50) {
+      insights.push(`${portfolioAnalysis.nftCount} NFTs!? ${firstName}-level collector! 🎨🖼️`)
+    }
     if (portfolioAnalysis.hasEth && portfolioAnalysis.usesL2) {
       insights.push(`${username}, you're using L2s like ${firstName}! Next-level thinking! 🦄⚡`)
     }
@@ -190,6 +213,7 @@ export async function POST(request: NextRequest) {
 
     let portfolioData = null
     let portfolioAnalysis = null
+    let nftAnalysis = null
     let contentProfile = null
     
     // Portfolio analysis
@@ -209,7 +233,22 @@ export async function POST(request: NextRequest) {
             token_count: data.tokens.length,
           })),
         }
-        portfolioAnalysis = analyzePortfolioMatch(portfolioData)
+        
+        // NFT Analysis (if Alchemy configured)
+        if (isAlchemyConfigured()) {
+          try {
+            nftAnalysis = await analyzeNFTPortfolio(walletAddress)
+            console.log('NFT Analysis:', {
+              total: nftAnalysis.totalNFTs,
+              collections: nftAnalysis.uniqueCollections,
+              popular: nftAnalysis.popularCollections
+            })
+          } catch (error) {
+            console.error('NFT analysis failed:', error)
+          }
+        }
+        
+        portfolioAnalysis = analyzePortfolioMatch(portfolioData, nftAnalysis)
       } catch (error) {
         console.error('Portfolio analysis failed:', error)
       }
@@ -280,6 +319,9 @@ export async function POST(request: NextRequest) {
           active_chains: portfolioAnalysis.activeChains,
           is_multi_chain: portfolioAnalysis.multiChain,
           is_defi_user: portfolioAnalysis.defiUser,
+          nft_count: portfolioAnalysis.nftCount || 0,
+          nft_summary: nftAnalysis ? getNFTSummary(nftAnalysis) : null,
+          popular_nfts: portfolioAnalysis.popularNFTs || []
         } : null,
         
         // Content summary

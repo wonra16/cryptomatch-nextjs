@@ -44,36 +44,75 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
     }
   }
   
-  // Get similar users (would use OpenRank or similar in production)
-  // For demo, we'll create sample matches
+  // Get REAL similar users from their following list
+  // Strategy: Find users who follow similar people
   const potentialMatches: UserMatchResult[] = []
   
-  // In production, you would:
-  // 1. Query Farcaster/Neynar for users with similar interests
-  // 2. Use OpenRank for social graph analysis
-  // 3. Check common channels
-  // 4. Analyze engagement patterns
+  // Get a sample of users from following list
+  const sampleFollowing = userFollowing.slice(0, 20)
   
-  // For now, return a sample match to demonstrate the feature
-  const sampleMatch: UserMatchResult = {
-    user: {
-      fid: 12345,
-      username: 'cryptoenthusiast',
-      display_name: 'Crypto Enthusiast',
-      pfp_url: 'https://i.imgur.com/placeholder.png'
-    },
-    compatibility_score: 85,
-    match_reasons: [
-      'You both are into DeFi and NFTs! 🏦🎨',
-      'Similar portfolio composition detected 💎',
-      'You follow 15 people in common 👥'
-    ],
-    common_interests: userContentProfile.topicsDetected.slice(0, 3),
-    common_following: 15,
-    portfolio_similarity: 75
+  for (const followedFid of sampleFollowing) {
+    try {
+      const followedProfile = await getUserProfile(followedFid)
+      if (!followedProfile) continue
+      
+      // Get their casts for content analysis
+      const followedCasts = await getUserCasts(followedFid, 25)
+      const followedContentProfile = analyzeContent(followedCasts.map((c: any) => c.text || ''))
+      
+      // Get their following for social similarity
+      const followedFollowing = await getUserFollowing(followedFid, 100)
+      
+      // Calculate similarity
+      const contentSimilarity = calculateContentSimilarity(userContentProfile, followedContentProfile)
+      const commonFollows = findCommonFollowing(userFollowing, followedFollowing)
+      const socialScore = calculateSocialSimilarity(
+        commonFollows.length,
+        userFollowing.length,
+        followedFollowing.length
+      )
+      
+      // Combined score
+      const compatibilityScore = Math.round(
+        (contentSimilarity * 0.6) + (socialScore * 0.4)
+      )
+      
+      // Only add if score > 50
+      if (compatibilityScore > 50) {
+        const commonInterests = userContentProfile.topicsDetected.filter((t: string) =>
+          followedContentProfile.topicsDetected.includes(t)
+        )
+        
+        const matchReasons = generateMatchReasons(
+          contentSimilarity,
+          commonFollows.length,
+          0, // portfolio similarity not implemented yet
+          commonInterests
+        )
+        
+        potentialMatches.push({
+          user: {
+            fid: followedProfile.fid,
+            username: followedProfile.username,
+            display_name: followedProfile.display_name,
+            pfp_url: followedProfile.pfp_url
+          },
+          compatibility_score: compatibilityScore,
+          match_reasons: matchReasons,
+          common_interests: commonInterests.slice(0, 3),
+          common_following: commonFollows.length,
+          portfolio_similarity: 0
+        })
+      }
+      
+      // Limit API calls - stop after finding 5 good matches
+      if (potentialMatches.length >= 5) break
+      
+    } catch (error) {
+      console.error(`Error analyzing FID ${followedFid}:`, error)
+      continue
+    }
   }
-  
-  potentialMatches.push(sampleMatch)
   
   return potentialMatches.sort((a, b) => b.compatibility_score - a.compatibility_score)
 }
