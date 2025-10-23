@@ -10,6 +10,7 @@ export const runtime = 'nodejs'
 interface UserMatchRequest {
   fid: number;
   username?: string;
+  walletAddress?: string;  // Optional wallet for enhanced matching
 }
 
 interface UserMatchResult {
@@ -36,7 +37,7 @@ async function findSimilarUsers(fid: number): Promise<UserMatchResult[]> {
   console.log('✅ User profile loaded:', userProfile.username)
   
   const userCasts = await getUserCasts(fid, 25)
-  const userFollowing = await getUserFollowing(fid, 100)
+  const userFollowing = await getUserFollowing(fid, 250)  // ← 200 → 250 MAX!
   const userWallet = getWalletFromUser(userProfile)
   
   console.log('📊 User stats:', {
@@ -240,19 +241,26 @@ export async function POST(request: NextRequest) {
     }
     
     const body: UserMatchRequest = await request.json()
-    const { fid, username } = body
+    const { fid, username, walletAddress } = body
+    
+    if (walletAddress) {
+      console.log('💰 User match with manual wallet:', walletAddress)
+    }
 
     // Find similar users
     const matches = await findSimilarUsers(fid)
+    
+    console.log(`✅ Match search complete! Found ${matches.length} matches`)
     
     // AI processing delay
     await new Promise(resolve => setTimeout(resolve, 1500))
 
     if (matches.length === 0) {
+      console.log('⚠️ NO MATCHES FOUND - Returning helpful error')
       return NextResponse.json({
         success: false,
         matches: [],
-        error: 'No matches found yet! 😔\n\nTips to find matches:\n• Follow 20+ active users on Farcaster\n• Engage with crypto/NFT/tech content\n• Build your on-chain presence\n• Cast regularly about your interests\n• Try again after growing your network! 🚀'
+        error: 'No matches found yet! 😔\n\nTips to find matches:\n• Follow 20+ active users on Farcaster\n• Engage with crypto/NFT/tech content\n• Build your on-chain presence\n• Cast regularly about your interests\n• Try again after growing your network! 🚀\n\nNote: We analyzed your following list but couldn\'t find similar users. This is normal for new accounts!'
       }, { status: 404 })
     }
 

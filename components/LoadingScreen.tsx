@@ -8,13 +8,9 @@ export default function LoadingScreen() {
       </div>
 
       <div className="relative z-10 text-center">
-        {/* App Icon/Logo */}
+        {/* Animated Hearts Stack */}
         <div className="relative inline-block mb-8">
-          <img 
-            src="/images/splash-512.png" 
-            alt="CryptoMatch" 
-            className="w-32 h-32 md:w-40 md:h-40 animate-pulse drop-shadow-2xl"
-          />
+          <div className="text-8xl animate-bounce">💕</div>
           <div className="absolute -top-4 -right-4 text-4xl animate-ping opacity-75">✨</div>
           <div className="absolute -bottom-4 -left-4 text-3xl animate-pulse delay-500">🔥</div>
         </div>

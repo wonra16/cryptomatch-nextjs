@@ -40,6 +40,8 @@ export interface FarcasterChannel {
 // Get user profile
 export async function getUserProfile(fid: number): Promise<FarcasterUser | null> {
   try {
+    console.log(`🔍 Fetching profile for FID: ${fid}`)
+    
     const response = await fetch(
       `${NEYNAR_BASE_URL}/farcaster/user/bulk?fids=${fid}`,
       {
@@ -47,19 +49,27 @@ export async function getUserProfile(fid: number): Promise<FarcasterUser | null>
           'accept': 'application/json',
           'x-api-key': NEYNAR_API_KEY
         },
-        next: { revalidate: 300 } // Cache for 5 minutes
+        cache: 'no-store'  // NO CACHE - fresh data!
       }
     )
     
     if (!response.ok) {
-      console.error('Neynar API error:', response.status)
+      console.error(`❌ Neynar profile API error for FID ${fid}:`, response.status, response.statusText)
       return null
     }
     
     const data = await response.json()
-    return data.users?.[0] || null
+    const user = data.users?.[0]
+    
+    if (user) {
+      console.log(`✅ Fetched profile for @${user.username} (FID: ${fid})`)
+    } else {
+      console.log(`⚠️ No profile found for FID: ${fid}`)
+    }
+    
+    return user || null
   } catch (error) {
-    console.error('Error fetching user profile:', error)
+    console.error(`❌ Error fetching user profile for FID ${fid}:`, error)
     return null
   }
 }
@@ -67,6 +77,8 @@ export async function getUserProfile(fid: number): Promise<FarcasterUser | null>
 // Get user's recent casts
 export async function getUserCasts(fid: number, limit: number = 25): Promise<FarcasterCast[]> {
   try {
+    console.log(`🔍 Fetching ${limit} casts for FID: ${fid}`)
+    
     const response = await fetch(
       `${NEYNAR_BASE_URL}/farcaster/feed/user/${fid}/casts?limit=${limit}`,
       {
@@ -74,47 +86,59 @@ export async function getUserCasts(fid: number, limit: number = 25): Promise<Far
           'accept': 'application/json',
           'x-api-key': NEYNAR_API_KEY
         },
-        next: { revalidate: 300 }
+        cache: 'no-store'  // NO CACHE - fresh data!
       }
     )
     
     if (!response.ok) {
-      console.error('Neynar casts API error:', response.status)
+      console.error(`❌ Neynar casts API error for FID ${fid}:`, response.status, response.statusText)
       return []
     }
     
     const data = await response.json()
-    return data.casts || []
+    const casts = data.casts || []
+    
+    console.log(`✅ Fetched ${casts.length} casts for FID: ${fid}`)
+    
+    return casts
   } catch (error) {
-    console.error('Error fetching user casts:', error)
+    console.error(`❌ Error fetching casts for FID ${fid}:`, error)
     return []
   }
 }
 
 // Get user's following list (for social graph analysis)
-export async function getUserFollowing(fid: number, limit: number = 100): Promise<number[]> {
+export async function getUserFollowing(fid: number, limit: number = 250): Promise<number[]> {
   try {
+    // Neynar max limit is 250
+    const safeLimit = Math.min(limit, 250)
+    
+    console.log(`🔍 Fetching following for FID ${fid}, limit: ${safeLimit}`)
+    
     const response = await fetch(
-      `${NEYNAR_BASE_URL}/farcaster/following?fid=${fid}&limit=${limit}`,
+      `${NEYNAR_BASE_URL}/farcaster/following?fid=${fid}&limit=${safeLimit}`,
       {
         headers: {
           'accept': 'application/json',
           'x-api-key': NEYNAR_API_KEY
         },
-        next: { revalidate: 600 } // Cache for 10 minutes
+        cache: 'no-store'  // NO CACHE - fresh data!
       }
     )
     
     if (!response.ok) {
-      console.error('Neynar following API error:', response.status)
+      console.error('❌ Neynar following API error:', response.status, response.statusText)
       return []
     }
     
     const data = await response.json()
     const users = data.users || []
+    
+    console.log(`✅ Fetched ${users.length} following for FID ${fid}`)
+    
     return users.map((u: any) => u.fid)
   } catch (error) {
-    console.error('Error fetching following:', error)
+    console.error('❌ Error fetching following:', error)
     return []
   }
 }

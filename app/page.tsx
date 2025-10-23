@@ -20,6 +20,7 @@ export default function Page() {
   const [portfolioData, setPortfolioData] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
   const [showWalletModal, setShowWalletModal] = useState(false)
+  const [showUserMatchWalletModal, setShowUserMatchWalletModal] = useState(false)  // ← NEW!
 
   useEffect(() => {
     const initSDK = async () => {
@@ -133,18 +134,37 @@ export default function Page() {
       return
     }
 
+    // Show wallet modal FIRST (user can skip or add manual wallet)
+    setShowUserMatchWalletModal(true)
+  }
+
+  const handleUserMatchContinue = async (manualWallet?: string) => {
+    setShowUserMatchWalletModal(false)
+
+    if (!context?.user?.fid) {
+      setError('Please open in Warpcast')
+      setScreen('error')
+      return
+    }
+
     setLoading(true)
     setScreen('loading')
 
     try {
       console.log('👥 Finding similar users for FID:', context.user.fid)
       
+      // If manual wallet provided, use it
+      if (manualWallet) {
+        console.log('💰 Using manual wallet for user match:', manualWallet)
+      }
+      
       const res = await fetch('/api/user-match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fid: context.user.fid,
-          username: context.user.username || `fid${context.user.fid}`
+          username: context.user.username || `fid${context.user.fid}`,
+          walletAddress: manualWallet  // Optional wallet
         })
       })
 
@@ -194,20 +214,31 @@ export default function Page() {
 
       const walletData = await walletRes.json()
       
-      console.log('📦 Wallet API response:', walletData)
+      console.log('📦 Wallet API response:', JSON.stringify(walletData, null, 2))
 
-      if (!walletData.success || (!walletData.wallet && (!walletData.wallets || walletData.wallets.eth.length === 0))) {
+      // Extract wallets safely
+      let allWallets: string[] = []
+      
+      if (walletData.success) {
+        if (walletData.wallets && walletData.wallets.eth && Array.isArray(walletData.wallets.eth)) {
+          // New multi-wallet format
+          allWallets = walletData.wallets.eth.filter((w: string) => w && w.length > 0)
+        } else if (walletData.wallet) {
+          // Old single wallet format
+          allWallets = [walletData.wallet]
+        }
+      }
+      
+      console.log('💰 Extracted wallets:', allWallets)
+      
+      if (allWallets.length === 0) {
         setError('No wallet found! Connect your Ethereum wallet on Farcaster:\n\nSettings → Verified Addresses → Connect Wallet')
         setScreen('error')
         setLoading(false)
         return
       }
 
-      // Get ALL Ethereum wallets!
-      const allWallets = walletData.wallets?.eth || [walletData.wallet]
-      console.log('💰 ALL Portfolio wallets:', allWallets)
       console.log('💰 Total wallets to analyze:', allWallets.length)
-
       console.log('💰 Analyzing MULTI-WALLET portfolio...')
       
       const res = await fetch('/api/portfolio/analyze', {
@@ -265,12 +296,20 @@ export default function Page() {
 
   return (
     <>
-      {/* Wallet Info Modal */}
+      {/* Celebrity Match Wallet Modal */}
       <WalletInfoModal
         show={showWalletModal}
         hasWallet={!!(context?.user?.custody_address || context?.user?.verified_addresses?.eth_addresses?.[0])}
         onContinue={handleContinueMatch}
         onCancel={() => setShowWalletModal(false)}
+      />
+
+      {/* User Match Wallet Modal */}
+      <WalletInfoModal
+        show={showUserMatchWalletModal}
+        hasWallet={!!(context?.user?.custody_address || context?.user?.verified_addresses?.eth_addresses?.[0])}
+        onContinue={handleUserMatchContinue}
+        onCancel={() => setShowUserMatchWalletModal(false)}
       />
 
       {screen === 'home' && (

@@ -39,14 +39,25 @@ export async function POST(request: NextRequest) {
     
     if (addresses && addresses.length > 0) {
       // Multi-wallet mode
-      walletsToAnalyze = addresses
+      walletsToAnalyze = addresses.filter(w => w && w.length > 0)  // Filter empty
       console.log('💰 Analyzing MULTIPLE wallets:', walletsToAnalyze.length)
     } else if (address) {
       // Single wallet mode (backward compat)
       walletsToAnalyze = [address]
       console.log('💰 Analyzing SINGLE wallet:', address)
     } else {
-      return NextResponse.json({ error: 'Address or addresses required' }, { status: 400 })
+      return NextResponse.json({ 
+        success: false,
+        error: 'Address or addresses required' 
+      }, { status: 400 })
+    }
+
+    // Safety check
+    if (walletsToAnalyze.length === 0) {
+      return NextResponse.json({ 
+        success: false,
+        error: 'No valid wallets provided' 
+      }, { status: 400 })
     }
 
     // Analyze ALL wallets and combine results!
@@ -61,34 +72,40 @@ export async function POST(request: NextRequest) {
     
     for (const wallet of walletsToAnalyze) {
       console.log(`🔍 Analyzing wallet: ${wallet}`)
-      const analysis = await analyzeWallet(wallet)
       
-      // Combine values
-      const currentTotal = parseFloat(combinedAnalysis.total_value_usd || '0')
-      const newTotal = parseFloat(analysis.total_value_usd || '0')
-      combinedAnalysis.total_value_usd = (currentTotal + newTotal).toFixed(2)
-      
-      // Combine meme coins
-      combinedAnalysis.total_meme_coins += (analysis.total_meme_coins || 0)
-      
-      // Combine chains
-      for (const [chainKey, chainData] of Object.entries(analysis.chains)) {
-        if (!combinedAnalysis.chains[chainKey]) {
-          combinedAnalysis.chains[chainKey] = chainData
-        } else {
-          // Merge chain data
-          const existing = combinedAnalysis.chains[chainKey]
-          const newData: any = chainData
-          
-          existing.native_balance = (parseFloat(existing.native_balance) + parseFloat(newData.native_balance)).toFixed(6)
-          existing.native_value_usd = (parseFloat(existing.native_value_usd) + parseFloat(newData.native_value_usd)).toFixed(2)
-          existing.tokens = [...existing.tokens, ...newData.tokens]
-          existing.meme_coins = (existing.meme_coins || 0) + (newData.meme_coins || 0)
+      try {
+        const analysis = await analyzeWallet(wallet)
+        
+        // Combine values
+        const currentTotal = parseFloat(combinedAnalysis.total_value_usd || '0')
+        const newTotal = parseFloat(analysis.total_value_usd || '0')
+        combinedAnalysis.total_value_usd = (currentTotal + newTotal).toFixed(2)
+        
+        // Combine meme coins
+        combinedAnalysis.total_meme_coins += (analysis.total_meme_coins || 0)
+        
+        // Combine chains
+        for (const [chainKey, chainData] of Object.entries(analysis.chains)) {
+          if (!combinedAnalysis.chains[chainKey]) {
+            combinedAnalysis.chains[chainKey] = chainData
+          } else {
+            // Merge chain data
+            const existing = combinedAnalysis.chains[chainKey]
+            const newData: any = chainData
+            
+            existing.native_balance = (parseFloat(existing.native_balance) + parseFloat(newData.native_balance)).toFixed(6)
+            existing.native_value_usd = (parseFloat(existing.native_value_usd) + parseFloat(newData.native_value_usd)).toFixed(2)
+            existing.tokens = [...existing.tokens, ...newData.tokens]
+            existing.meme_coins = (existing.meme_coins || 0) + (newData.meme_coins || 0)
+          }
         }
+        
+        // Combine all tokens
+        combinedAnalysis.all_tokens = [...combinedAnalysis.all_tokens, ...analysis.all_tokens]
+      } catch (walletError) {
+        console.error(`❌ Error analyzing wallet ${wallet}:`, walletError)
+        // Continue with other wallets
       }
-      
-      // Combine all tokens
-      combinedAnalysis.all_tokens = [...combinedAnalysis.all_tokens, ...analysis.all_tokens]
     }
     
     console.log(`✅ Combined analysis complete! Total: $${combinedAnalysis.total_value_usd}`)
