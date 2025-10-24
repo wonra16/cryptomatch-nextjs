@@ -46,8 +46,8 @@ export default function WalletInfoModal({ onClose, onContinue }: WalletInfoModal
           </div>
         </div>
 
-        {/* Manual Input Option - Only if no wallet */}
-        {!hasWallet && !manualInput && (
+        {/* Manual Input Option */}
+        {!manualInput && (
           <button
             onClick={() => setManualInput(true)}
             className="w-full bg-white/10 backdrop-blur-xl text-white py-3 px-4 rounded-xl text-sm font-bold 

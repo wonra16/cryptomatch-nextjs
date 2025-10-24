@@ -1,231 +1,102 @@
-# 🎯 CryptoMatch V3.0 - VIBE CHECK Edition!
+# 🎯 CryptoMatch V3 - Setup Guide
 
-**AI-Powered Farcaster Personality Analyzer + Celebrity Matching**
+## ⚠️ CRITICAL: 2 API Keys Required!
 
-## 🔥 NEW FEATURE: VIBE CHECK!
+### 1️⃣ WalletConnect Project ID (REQUIRED!)
 
-Discover your Farcaster personality with AI-powered analysis!
+**Current Status:** Using DEMO ID - will cause 403 errors!
 
-### What's Vibe Check?
-- 🎯 **Analyzes your last 25 casts**
-- 🤖 **AI determines your personality type**
-- 📊 **Calculates your vibe score (0-100)**
-- 🔥 **Gives you a funny AI roast**
-- 📤 **Shareable results card**
+**Get Your FREE Project ID:**
 
-### Personality Types:
-- 🎲 **The Degen** - You live for the thrill!
-- 🔨 **The Builder** - Shipping and creating!
-- 💩 **The Shitposter** - Comedy gold!
-- 🧠 **The Philosopher** - Deep thoughts only!
-- 🤝 **The Community Builder** - Bringing people together!
-- 🎨 **The Artist** - Pure creative energy!
+1. Go to: **https://cloud.reown.com/sign-in**
+2. Sign up (free)
+3. Create new project
+4. Copy Project ID (32 characters, like: `3fcc6bba6f1de962d911bb5b5c3dba68`)
+5. Add your domain to whitelist
+
+**Update Code:**
+```typescript
+// File: components/WalletProviders.tsx (line 16)
+const WALLETCONNECT_PROJECT_ID = 'YOUR_PROJECT_ID_HERE' // Replace this!
+```
 
 ---
 
-## ✨ Features
+### 2️⃣ Neynar API Key (REQUIRED!)
 
-### 1. Celebrity Match 🌟
-- AI analyzes your Farcaster posts
-- Matches you with 100+ celebrities
-- Shows compatibility score & reasons
-- Optional wallet integration for deeper insights
+**Get from:** https://neynar.com
 
-### 2. Vibe Check 🎯 **[NEW!]**
-- Personality type detection
-- Vibe score calculation
-- Top interests extraction
-- AI-generated roast
-- Activity stats analysis
-- Shareable results
+**Add to `.env.local`:**
+```bash
+NEYNAR_API_KEY=your_key_here
+```
+
+**NOTE:** `wc_secret_b8e4fcd5` is your Neynar key, NOT WalletConnect!
 
 ---
 
 ## 🚀 Quick Start
 
-### Deploy to Vercel:
 ```bash
-git clone [your-repo]
-cd cryptomatch-v3
-vercel deploy
-```
+# 1. Install
+npm install
 
-### Set Environment Variables:
-```
-NEYNAR_API_KEY=your_neynar_key
-ALCHEMY_API_KEY=your_alchemy_key (optional)
-```
+# 2. Create .env.local
+echo "NEYNAR_API_KEY=your_key_here" > .env.local
 
-### Test:
-1. Open in Warpcast
-2. Try "Find Celebrity Match" 🌟
-3. Try "Farcaster Vibe Check" 🎯 **[NEW!]**
+# 3. Update WalletConnect ID in components/WalletProviders.tsx
 
----
+# 4. Run
+npm run dev
 
-## 📖 How It Works
-
-### Celebrity Match Flow:
-1. User clicks "Find Celebrity Match"
-2. Optional: Add wallet for portfolio analysis
-3. AI analyzes Farcaster casts
-4. Matches with celebrities based on interests
-5. Shows compatibility score & reasons
-
-### Vibe Check Flow: **[NEW!]**
-1. User clicks "Farcaster Vibe Check"
-2. Fetches last 25 casts
-3. AI analyzes content & personality
-4. Calculates vibe score (0-100)
-5. Determines personality type
-6. Generates funny AI roast
-7. Shows shareable results card
-
----
-
-## 🎨 Tech Stack
-
-- **Framework**: Next.js 14 + TypeScript
-- **Styling**: Tailwind CSS
-- **Farcaster**: Frame SDK + Neynar API
-- **Blockchain**: Alchemy API (optional)
-- **AI**: Custom personality analysis algorithms
-
----
-
-## 📊 Vibe Check Algorithm
-
-```javascript
-// Personality Detection
-- Analyzes keyword frequency
-- Matches against 6 personality types
-- Returns best match
-
-// Vibe Score Calculation (0-100)
-- Base score: 50
-- Activity bonus: +20
-- Engagement bonus: +15
-- Recency bonus: +10
-- Variety bonus: +5
-
-// AI Roast Generation
-- Personality-specific roasts
-- Score-based commentary
-- Funny & engaging
+# 5. Deploy
+vercel deploy --prod
 ```
 
 ---
 
-## 🎯 API Endpoints
+## ✅ Fixed Issues
 
-### POST /api/match
-Celebrity matching endpoint
-```json
-{
-  "fid": 339972,
-  "username": "wonra16",
-  "walletAddress": "0x..." // optional
-}
-```
+- ✅ hasWallet undefined error
+- ✅ WalletConnect 403 error (needs your Project ID)
+- ✅ Neynar API endpoint
+- ✅ Modal props
 
-### POST /api/vibe-check **[NEW!]**
-Vibe check endpoint
-```json
-{
-  "fid": 339972
-}
-```
+---
 
-Response:
-```json
-{
-  "success": true,
-  "result": {
-    "username": "wonra16",
-    "vibeScore": 85,
-    "personalityType": {
-      "type": "The Builder 🔨",
-      "emoji": "🔨",
-      "description": "..."
-    },
-    "topInterests": ["Crypto", "Building", "AI"],
-    "roast": "...",
-    "stats": {
-      "totalCasts": 25,
-      "avgCastLength": 120,
-      "mostActiveHour": "14:00"
-    }
-  }
-}
+## 🎯 Features
+
+- Celebrity Match (100+ celebs)
+- Vibe Check (6 personality types)
+- Optional wallet analysis
+- Shareable results
+
+---
+
+## 📝 Environment Variables
+
+```bash
+# Required
+NEYNAR_API_KEY=get_from_neynar.com
+
+# Optional
+ALCHEMY_API_KEY=get_from_alchemy.com
 ```
 
 ---
 
-## 🔥 What's Changed
+## 🐛 Common Issues
 
-- ❌ Removed: User Matching (too complex)
-- ❌ Removed: Portfolio Analysis (rate limiting)
-- ✅ Kept: Celebrity Match (works perfectly!)
-- ✅ Added: Vibe Check (viral potential!)
+### "403 Forbidden" Error
+**Cause:** Using demo WalletConnect ID  
+**Fix:** Get your own from cloud.reown.com
 
----
+### "hasWallet is not defined"
+**Status:** ✅ FIXED!
 
-## 💡 Why Vibe Check?
-
-1. **Simple**: Just needs FID, no wallet required
-2. **Fast**: Analyzes 25 casts in seconds
-3. **Fun**: Personality types + AI roasts
-4. **Shareable**: Users love sharing results
-5. **Viral**: "Wrapped" style content performs well
-6. **Unique**: Nobody else has this on Farcaster!
+### "No casts found"
+**Fix:** Check NEYNAR_API_KEY in .env.local
 
 ---
 
-## 📈 Expected Engagement
-
-### Celebrity Match:
-- Proven feature
-- High completion rate
-- Users love celebrity comparisons
-
-### Vibe Check: **[NEW!]**
-- Viral potential (Spotify Wrapped style)
-- Easy to share
-- Encourages repeat usage
-- Community engagement
-
----
-
-## 🎊 Credits
-
-**Made with 💜 by wonra16**
-
-Special thanks to:
-- Farcaster team for amazing APIs
-- Neynar for reliable data
-- The crypto community for inspiration
-
----
-
-## 📝 License
-
-MIT License - Feel free to fork and customize!
-
----
-
-## 🚀 Roadmap
-
-- [x] Celebrity matching
-- [x] Vibe Check personality analyzer
-- [ ] Leaderboard (top vibes)
-- [ ] Historical vibe tracking
-- [ ] Vibe comparison with friends
-- [ ] Custom personality types
-
----
-
-**CryptoMatch V3.0 - Discover Your Vibe! 🎯**
-
-*Celebrity Matching + Personality Analysis = Perfect Combination!*
-
-**Deploy Now → Watch It Go Viral!** 🚀🔥💎
+Made with 💜 on Farcaster
