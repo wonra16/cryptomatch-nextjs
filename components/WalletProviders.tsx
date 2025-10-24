@@ -12,7 +12,7 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 // Steps:
 // 1. Sign up for free
 // 2. Create new project
-// 3. Copy Project ID (looks like: 3fcc6bba6f1de962d911bb5b5c3dba68)
+// 3. Copy Project ID (looks like: 5c865560b61a1667bbbb05a1adef5ad0)
 // 4. Add your domain to allowed list
 //
 // For now using a demo ID - REPLACE THIS!
