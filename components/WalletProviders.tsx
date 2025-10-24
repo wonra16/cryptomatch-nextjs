@@ -8,9 +8,9 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 
 const config = getDefaultConfig({
   appName: 'CryptoMatch',
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'YOUR_PROJECT_ID',
+  projectId: 'wc_secret_b8e4fcd5', // FIXED: Your actual WalletConnect key!
   chains: [mainnet, base, optimism, arbitrum, polygon],
-  ssr: true,
+  ssr: false, // IMPORTANT: Disable SSR for Farcaster Frame SDK compatibility!
 })
 
 const queryClient = new QueryClient()
